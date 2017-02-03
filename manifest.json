@@ -1,0 +1,26 @@
+{
+  "manifest_version": 2,
+
+  "name": "Anti Ad",
+  "description": "Removes ads",
+  "version": "1.0",
+
+//  "browser_action": {
+//    "default_icon": "icon.png",
+//    "default_title": "tommy wrote this",
+//    "default_popup": "popup.html"
+//  },
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["anti_ad.js"]
+    }
+  ]
+
+//  "permissions": [
+//    "<all_urls>",
+//    "tabs",
+//    "https://ajax.googleapis.com/"
+//  ]
+}
