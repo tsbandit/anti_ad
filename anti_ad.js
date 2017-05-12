@@ -13,6 +13,8 @@ var f = function() {
     for(var i=0; i<es.length; ++i)
       b.push(es[i]);
   };
+  nuke_class('ad');
+  nuke_class('ad-banner-container');
   nuke_class('ad-container');
   nuke_class('adzerk-vote');
   nuke_class('ac_adbox_inner');
@@ -66,7 +68,7 @@ var f = function() {
   for(var i=0; i<es.length; ++i)
     if(     ''.indexOf.call(es[i].href, "trafficfactory.biz") >= 0
         ||  ''.indexOf.call(es[i].href, "adzerk.net") >= 0
-		)
+        )
       b.push(es[i]);
 
   // Filter <iframe> elements by src
@@ -74,6 +76,9 @@ var f = function() {
   for(var i=0; i<es.length; ++i)
     if(
             es[i].src.indexOf("adnxs.com") >= 0
+        ||  es[i].src.indexOf("disqusads.com") >= 0
+        ||  es[i].src.indexOf("amazon-adsystem.com") >= 0
+        ||  es[i].src.indexOf("google.com/afs/ads") >= 0
         )
       b.push(es[i]);
 
@@ -85,7 +90,9 @@ var f = function() {
 //        || es[i].id.indexOf("ados_frame_adzerk") === 0
         || es[i].id.indexOf("fif_slot_auto") === 0
         || es[i].id.indexOf("amznad") === 0
-        || es[i].id.indexOf("aswift") === 0 )
+        || es[i].id.indexOf("aswift") === 0
+        || es[i].id.indexOf("utif_apn_ad_slot_") === 0
+        )
       b.push(es[i]);
 
 /*
@@ -113,7 +120,9 @@ var f = function() {
         || es[i].id.indexOf('zergnet-widget') === 0
         || es[i].id.indexOf('google_ads') === 0
         || es[i].id.indexOf('rcjsload') === 0
-        || es[i].id.indexOf('outbrain') === 0 )
+        || es[i].id.indexOf('outbrain') === 0
+        || es[i].id.indexOf('amzn_assoc_ad_div_adunit') === 0
+        )
       b.push(es[i]);
 
   // Filter <div> elements by class
@@ -167,11 +176,39 @@ var f = function() {
     if(e !== null)
       e.remove();
   };
+//  remove('pagelet_growth_expanding_cta');  // "Log in to Facebook!"
   remove('googa');
   remove('social_badges');
   remove('taboola-container');
   remove('google_companion_ad_div');
   remove('ad');
+  remove('pubmatic_parent');
+
+  // "Log in to Facebook!"
+  // Look for <a> tags containing "Not Now" and with other telling signs nearby
+  var es = document.getElementsByTagName('a');
+  for(var i=0; i<es.length; ++i) {
+    // Verify that the <a> tag matches all the criteria, otherwise continue.
+    if(es[i].innerHTML !== 'Not Now')
+      continue;
+    try {
+      if(es[i].parentElement.childNodes[0].childNodes[0].innerText.indexOf(
+                'To see more from') !== 0)
+        throw 0;
+    } catch(_) {
+      try{
+        if(es[i].id !== 'expanding_cta_close_button')
+          throw 0;
+        if(es[i].parentElement.childNodes[0].childNodes[0].innerText.indexOf(
+                'See more of') !== 0)
+          throw 0;
+      } catch(_) {
+        continue;
+      }
+    }
+
+    es[i].parentElement.parentElement.parentElement.remove();
+  }
 
   // Skip youtube video ads
   var es = document.getElementsByTagName('video');
