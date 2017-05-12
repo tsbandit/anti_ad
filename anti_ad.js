@@ -231,4 +231,4 @@ setTimeout(g, 0);
 //console.log('stupid tommy debug stmt');
 
 
-}())
+}());
