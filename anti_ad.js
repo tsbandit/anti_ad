@@ -1,6 +1,9 @@
 (function() {
 
 
+var timeout_handle = null;
+
+
 // This function removes a bunch of bad stuff from the DOM
 var f = function() {
   var b = [];  // array of elements that will be removed
@@ -14,6 +17,7 @@ var f = function() {
       b.push(es[i]);
   };
   nuke_class('ad');
+  nuke_class('advertisement');
   nuke_class('ad-banner-container');
   nuke_class('ad-container');
   nuke_class('adzerk-vote');
@@ -23,8 +27,9 @@ var f = function() {
   nuke_class('video-ads');
   nuke_class('moov-banner-wrapper');
   nuke_class('js-ima-ads-container');  // twitch video ads
-//  nuke_class('advertisement');  // other twitch ads
+  nuke_class('advertisement');
   nuke_class('direct-ad-frame');  // Gyazo ads
+  nuke_class('clc-cp-container');  // Some stackoverflow ads?
 
   // Remove youtube "related ad videos"
   es = document.getElementsByClassName('ad-badge-byline');
@@ -79,6 +84,7 @@ var f = function() {
         ||  es[i].src.indexOf("disqusads.com") >= 0
         ||  es[i].src.indexOf("amazon-adsystem.com") >= 0
         ||  es[i].src.indexOf("google.com/afs/ads") >= 0
+        ||  es[i].src.indexOf("bidvertiser.com") >= 0
         )
       b.push(es[i]);
 
@@ -104,6 +110,16 @@ var f = function() {
         ||  es[i].className.indexOf('cnvr-ad') >= 0
         )
       b.push(es[i]);
+*/
+
+/*
+  // Filter some stackoverflow ads?
+  es = document.getElementsByTagName("img");
+  for(var i=0; i<es.length; ++i)
+    if(
+            es[i].src.indexOf("clc.stackoverflow.com") >= 0
+        )
+      b.parentNode.push(es[i]);
 */
 
   // Filter elements containing suspicious <script> elements
@@ -166,6 +182,15 @@ var f = function() {
   remove_reddit('ad_main');
   remove_reddit('ad_main_top');
 
+  // Remove some stackoverflow ads ...
+  var e = document.getElementById('hireme');
+  if(e !== null) {
+    if(     e.innerText.indexOf('Jobs near you') === 0
+        ||  e.innerText.indexOf('Looking for a job?') === 0
+        )
+      b.push(e);
+  }
+
   // Finally remove those elements we filtered
   for(var i=0; i<b.length; ++i)
     b[i].remove();
@@ -183,6 +208,7 @@ var f = function() {
   remove('google_companion_ad_div');
   remove('ad');
   remove('pubmatic_parent');
+  remove('player-ads');  //Youtube video top-right ads
 
   // "Log in to Facebook!"
   // Look for <a> tags containing "Not Now" and with other telling signs nearby
@@ -222,10 +248,10 @@ var f = function() {
 
 // Call f() every once in a while
 var g = function() {
-  setTimeout(g, 2000);
-  f();
+  timeout_handle = setTimeout(g, 1000);
+  f();  // Might call clearTimeout(timeout_handle)
 };
-setTimeout(g, 0);
+timeout_handle = setTimeout(g, 0);
 
 //alert('working');
 //console.log('stupid tommy debug stmt');
