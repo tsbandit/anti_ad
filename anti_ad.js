@@ -113,15 +113,13 @@ var f = function() {
       b.push(es[i]);
 */
 
-/*
-  // Filter some stackoverflow ads?
+  // Filter <img> elements by src
   es = document.getElementsByTagName("img");
   for(var i=0; i<es.length; ++i)
     if(
-            es[i].src.indexOf("clc.stackoverflow.com") >= 0
+            es[i].src.indexOf('adnxs.com') >= 0
         )
-      b.parentNode.push(es[i]);
-*/
+      b.push(es[i]);
 
   // Filter elements containing suspicious <script> elements
   es = document.getElementsByTagName('script');
@@ -139,6 +137,7 @@ var f = function() {
         || es[i].id.indexOf('rcjsload') === 0
         || es[i].id.indexOf('outbrain') === 0
         || es[i].id.indexOf('amzn_assoc_ad_div_adunit') === 0
+        || es[i].id.indexOf('adblock') >= 0
         )
       b.push(es[i]);
 
@@ -210,6 +209,7 @@ var f = function() {
   remove('ad');
   remove('pubmatic_parent');
   remove('player-ads');  //Youtube video top-right ads
+  remove('at4-share');  // A floating share-button thingie on the side
 
   // Cover any remaining iframes
   var iframes = document.getElementsByTagName('iframe');
@@ -231,6 +231,7 @@ var f = function() {
       cover.style.color = 'rgba(255,255,255,1)';
       cover.style.position = 'absolute';
       cover.innerText = 'Show iframe';
+      cover.style.overflow = 'hidden';
       document.body.appendChild(cover);
 
       entry = {cover: cover, iframe: iframe};
