@@ -2,6 +2,7 @@
 
 
 var timeout_handle = null;
+var iframe_covers = [];
 
 
 // This function removes a bunch of bad stuff from the DOM
@@ -209,6 +210,67 @@ var f = function() {
   remove('ad');
   remove('pubmatic_parent');
   remove('player-ads');  //Youtube video top-right ads
+
+  // Cover any remaining iframes
+  var iframes = document.getElementsByTagName('iframe');
+  for(var i=0; i<iframes.length; ++i) {(function() {
+    var iframe = iframes[i];
+
+    // Find the cover for this iframe
+    var entry = null;
+    for(var j=0; j<iframe_covers.length; ++j)
+      if(iframe_covers[j].iframe === iframe)
+        entry = iframe_covers[j];
+
+    var cover = null;
+
+    // Create the cover if it doesn't exist
+    if(entry === null) {
+      cover = document.createElement('div');
+      cover.style.backgroundColor = 'rgba(128,128,128,1)';
+      cover.style.color = 'rgba(255,255,255,1)';
+      cover.style.position = 'absolute';
+      cover.innerText = 'Show iframe';
+      document.body.appendChild(cover);
+
+      entry = {cover: cover, iframe: iframe};
+      iframe_covers.push(entry);
+
+      cover.onclick = function() {
+        entry.cover = false;
+        cover.remove();
+        console.log('Tried to remove it!');
+      };
+    }
+
+    if(cover === null)
+      cover = entry.cover;
+
+    if(cover !== false) {
+      // Position the cover over the iframe
+      var rect = iframe.getBoundingClientRect();
+      cover.style.left   = (rect.left+pageXOffset) + 'px';
+      cover.style.width  = rect.width + 'px';
+      cover.style.top    = (rect.top+pageYOffset) + 'px';
+      cover.style.height = rect.height + 'px';
+//      cover.style.margin='0px';
+//      cover.style.border='0px';
+//      cover.style.padding='0px';
+//      cover.style.left   = '50px';
+//      cover.style.right  = '100px';
+//      cover.style.top    = '50px';
+//      cover.style.bottom = '100px';
+    }
+  }());}
+
+  // Clean up any iframe-covers that shouldn't exist anymore.
+  for(var j=iframe_covers.length-1; j>=0; --j) {
+    if(!document.body.contains(iframe_covers[j].iframe)) {
+      if(iframe_covers[j].cover !== false)
+        iframe_covers[j].cover.remove();
+      iframe_covers.splice(j, 1);
+    }
+  }
 
   // "Log in to Facebook!"
   // Look for <a> tags containing "Not Now" and with other telling signs nearby
