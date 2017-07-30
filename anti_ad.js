@@ -5,6 +5,19 @@ var timeout_handle = null;
 var iframe_covers = [];
 
 
+var is_fixed = function(el) {
+  for(var i=0; i<10000; ++i) {
+    if(el === null)
+      return false;
+
+    if(window.getComputedStyle(el).getPropertyValue('position').toLowerCase() === 'fixed')
+      return true;
+
+    el = el.parentElement;
+  }
+  throw 'loop ran for too long';
+};
+
 // This function removes a bunch of bad stuff from the DOM
 var f = function() {
   var b = [];  // array of elements that will be removed
@@ -231,7 +244,7 @@ var f = function() {
       cover = document.createElement('div');
       cover.style.backgroundColor = 'rgba(128,128,128,1)';
       cover.style.color = 'rgba(255,255,255,1)';
-      cover.style.position = 'absolute';
+      cover.style.font = 'medium sans-serif';
       cover.innerText = 'Show iframe';
       cover.style.overflow = 'hidden';
       document.body.appendChild(cover);
@@ -242,7 +255,6 @@ var f = function() {
       cover.onclick = function() {
         entry.cover = false;
         cover.remove();
-        console.log('Tried to remove it!');
       };
     }
 
@@ -251,18 +263,22 @@ var f = function() {
 
     if(cover !== false) {
       // Position the cover over the iframe
+      var s = getComputedStyle(iframe);
+      cover.style.position = 'absolute';
       var rect = iframe.getBoundingClientRect();
-      cover.style.left   = (rect.left+pageXOffset) + 'px';
-      cover.style.width  = rect.width + 'px';
-      cover.style.top    = (rect.top+pageYOffset) + 'px';
+      var xoff = pageXOffset;
+      var yoff = pageYOffset;
+      if(iframe===null)
+        throw 0;
+      if(is_fixed(iframe)) {
+        xoff = yoff = 0;
+        cover.style.position = 'fixed';
+      }
+      cover.style.left = (rect.left + xoff) + 'px';
+      cover.style.top = (rect.top + yoff) + 'px';
+      cover.style.width = rect.width + 'px';
       cover.style.height = rect.height + 'px';
-//      cover.style.margin='0px';
-//      cover.style.border='0px';
-//      cover.style.padding='0px';
-//      cover.style.left   = '50px';
-//      cover.style.right  = '100px';
-//      cover.style.top    = '50px';
-//      cover.style.bottom = '100px';
+      cover.style.zIndex = 10000;
     }
   }());}
 
