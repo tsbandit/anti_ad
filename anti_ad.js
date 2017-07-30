@@ -18,6 +18,7 @@ var f = function() {
       b.push(es[i]);
   };
   nuke_class('ad');
+  nuke_class('spx-adwords');
   nuke_class('advertisement');
   nuke_class('ad-banner-container');
   nuke_class('ad-container');
@@ -138,6 +139,7 @@ var f = function() {
         || es[i].id.indexOf('outbrain') === 0
         || es[i].id.indexOf('amzn_assoc_ad_div_adunit') === 0
         || es[i].id.indexOf('adblock') >= 0
+        || es[i].id.indexOf('trc_wrapper_') === 0  // Sponsored links by Taboola
         )
       b.push(es[i]);
 
