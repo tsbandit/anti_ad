@@ -278,7 +278,7 @@ var f = function() {
       cover.style.top = (rect.top + yoff) + 'px';
       cover.style.width = rect.width + 'px';
       cover.style.height = rect.height + 'px';
-      cover.style.zIndex = 10000;
+      cover.style.zIndex = 999999999999;
     }
   }());}
 
