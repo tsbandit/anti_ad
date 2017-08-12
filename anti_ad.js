@@ -206,6 +206,13 @@ var f = function() {
       b.push(e);
   }
 
+  // Actually, this code removes some stuff that isn't ads. So I better try something else instead.
+//  // Remove some facebook ads
+//  es = document.getElementsByClassName('ego_unit');
+//  for(var i=0; i<es.length; ++i)
+//    if(typeof es[i].getAttribute('data-ego-fbid') === 'string')
+//      b.push(es[i]);
+
   // Finally remove those elements we filtered
   for(var i=0; i<b.length; ++i)
     b[i].remove();
