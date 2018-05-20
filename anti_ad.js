@@ -213,6 +213,11 @@ var f = function() {
 //    if(typeof es[i].getAttribute('data-ego-fbid') === 'string')
 //      b.push(es[i]);
 
+  // Remove some sidebar ads in youtube
+  es = document.getElementsByTagName('ytd-compact-promoted-video-renderer');
+  for(var i=0; i<es.length; ++i)
+    b.push(es[i]);
+
   // Finally remove those elements we filtered
   for(var i=0; i<b.length; ++i)
     b[i].remove();
