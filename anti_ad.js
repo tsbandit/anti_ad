@@ -347,16 +347,17 @@ var f = function() {
     var es = document.getElementsByTagName('em');
     for(var i=0; i<es.length; ++i) {
       if(es[i].innerText === "Namaste. You seek balance. Here is my wisdom. Your mistakes have no cost but time, and the deconstruction planner even reduces that cost. Most games punish you for building, demolishing and rebuilding. Not Factorio. Let your anxiety wash away as you perceive that every belt placed can be moved. Every assembler is but a visitor to where it resides. The only significance is life, which leads to the further wisdom. Look both ways before you cross the tracks.")
-        disable = true;
+        disable = {reason: 'factorio subreddit'};
     }
 
     // Disable /r/ffviiremake
     if(window.getComputedStyle(document.body, false).backgroundImage === 'url("https://a.thumbs.redditmedia.com/mgKSOsATIw9wFPOwGjD3cR9IyN2zD7ZJZ9iO3ooT2D4.png")')
-      disable = true;
+      disable = {reason: 'ffviiremake subreddit'};
 
-    // Disable twitch.tv
-    if(window.location.hostname.indexOf('twitch.tv') >= 0)
-      disable = true;
+    // Disable certain hostnames
+    if(     window.location.hostname.indexOf('twitch.tv') >= 0
+        )
+      disable = {reason: 'banned hostname'};
 
     // Disable some youtube channels
     if(window.location.hostname.indexOf('youtube.com') >= 0) {
@@ -369,11 +370,11 @@ var f = function() {
         var ess = document.getElementsByClassName('g-hovercard');
         for(var j=0; j<ess.length; ++j)
           if(ess[j].innerText === ch)
-            disable = true;
+            disable = {reason: 'username: ' + ch};
 
         // Disable other pages pertaining to those youtube channels
         if(window.location.href.toUpperCase().indexOf(ch.toUpperCase()) >= 0)
-          disable = true;
+          disable = {reason: 'url contains: ' + ch};
       }
     }
   }
@@ -382,6 +383,7 @@ var f = function() {
 
   // Disable if necessary
   if(disable) {
+    console.log('disabling because: ' + disable.reason);
     clearTimeout(timeout_handle);
     document.head.remove();
     document.body.remove();
