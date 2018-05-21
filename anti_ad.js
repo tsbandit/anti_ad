@@ -162,11 +162,53 @@ var f = function() {
     if(es[i].className.indexOf('taboola') >= 0)
       b.push(es[i]);
 
-  // Remove reddit promoted post
+  // Remove old-reddit promoted post
   es = document.getElementsByClassName('sponsored-tagline');
   for(var i=0; i<es.length; ++i)
     if(es[i].parentNode.parentNode.className.indexOf('promotedlink') >= 0)
       b.push(es[i].parentNode.parentNode);
+
+  // Remove reddit promoted post
+  es = document.getElementsByTagName('span');
+  for(let i=0; i<es.length; ++i) {
+    const should_remove = function() {
+      try {
+        const p = [es[i]];  // p means "parents"
+        for(let j=0; j<7; ++j)
+          p.push(p[p.length-1].parentNode);
+        if(
+                es[i].innerText === 'PROMOTED'
+            &&
+                p[1].children.length === 5
+            &&
+                p[1].children[1].innerText.charCodeAt(0) === 8226
+            &&
+                p[2].children.length === 2
+            &&
+                p[3].children.length === 1
+            &&
+                p[4].children.length === 4
+            &&
+                p[5].children.length === 2
+            &&
+                p[5].children[0].children[0].children[0].getAttribute('data-click-id') === 'upvote'
+            &&
+                p[6].children.length === 1
+            &&
+                p[7].children.length === 1
+            ) {
+          console.log('removed!');
+          return p[7];
+        }
+        throw 0;
+      } catch(e) {
+        return false;
+      }
+    };
+    const r = should_remove();
+    if(r !== false)
+      b.push(r);
+  }
 
   // Find <iframe> elements that are siblings of <div> with
   // id matching "google_ads"
