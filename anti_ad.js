@@ -251,6 +251,60 @@ var f = function() {
   for(var i=0; i<es.length; ++i)
     b.push(es[i]);
 
+  // Quora "Ad by" thingies
+  es = document.getElementsByTagName('div');
+  for(let i=0; i<es.length; ++i) {
+    const should_remove = function() {
+      try {
+        if(!es[i].innerText.startsWith('Ad by '))
+          return false;
+
+        let node = es[i];
+        for(let j=0; j<100; ++j)
+          if(node.classList.contains('PromptsList'))
+            break;
+          else
+            node = node.parentNode;
+        if(j >= 100)
+          return false;
+
+        return node.parentNode;
+      } catch(e) {
+        return false;
+      }
+    };
+    const r = should_remove();
+    if(r !== false)
+      b.push(r);
+  }
+
+  // Quora "Promoted by" thingies
+  es = document.getElementsByTagName('div');
+  for(let i=0; i<es.length; ++i) {
+    const should_remove = function() {
+      try {
+        if(!es[i].innerText.startsWith('Promoted by '))
+          return false;
+
+        let node = es[i];
+        for(let j=0; j<100; ++j)
+          if(node.classList.contains('pagedlist_item'))
+            break;
+          else
+            node = node.parentNode;
+        if(j >= 100)
+          return false;
+
+        return node;
+      } catch(e) {
+        return false;
+      }
+    };
+    const r = should_remove();
+    if(r !== false)
+      b.push(r);
+  }
+
   // Finally remove those elements we filtered
   for(var i=0; i<b.length; ++i)
     b[i].remove();
