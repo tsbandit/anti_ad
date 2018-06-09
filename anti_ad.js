@@ -173,32 +173,23 @@ var f = function() {
   for(let i=0; i<es.length; ++i) {
     const should_remove = function() {
       try {
-        const p = [es[i]];  // p means "parents"
-        for(let j=0; j<7; ++j)
-          p.push(p[p.length-1].parentNode);
+        let scrollerItem = es[i];
+        for(let j=0; j<20; ++j)
+          if(scrollerItem.classList.contains('scrollerItem'))
+            break;
+          else
+            scrollerItem = scrollerItem.parentNode;
+
+        const div = scrollerItem.parentNode.parentNode;
+
         if(
                 es[i].innerText === 'PROMOTED'
             &&
-                p[1].children.length === 5
+                es[i].parentNode.children[1].innerText.charCodeAt(0) === 8226
             &&
-                p[1].children[1].innerText.charCodeAt(0) === 8226
-            &&
-                p[2].children.length === 2
-            &&
-                p[3].children.length === 1
-            &&
-                p[4].children.length === 4
-            &&
-                p[5].children.length === 2
-            &&
-                p[5].children[0].children[0].children[0].getAttribute('data-click-id') === 'upvote'
-            &&
-                p[6].children.length === 1
-            &&
-                p[7].children.length === 1
+                scrollerItem.children[0].children[0].children[0].getAttribute('data-click-id') === 'upvote'
             ) {
-          console.log('removed!');
-          return p[7];
+          return div;
         }
         throw 0;
       } catch(e) {
