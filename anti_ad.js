@@ -306,8 +306,10 @@ var f = function() {
   }
 
   // Finally remove those elements we filtered
-  for(var i=0; i<b.length; ++i)
+  for(var i=0; i<b.length; ++i) {
     b[i].remove();
+    console.log('removed!');
+  }
 
   // Remove a few elements with specific id
   var remove = function(x) {
