@@ -424,7 +424,9 @@ var f = function() {
     if(es[i].parentElement.parentElement.className.indexOf('ad-interrupting') >= 0)
       try {
 //        es[i].pause();
-        es[i].currentTime = es[i].duration-0.01;
+        const t = es[i].duration - 0.2;
+        if(es[i].currentTime < t)
+          es[i].currentTime = t;
       } catch(_) {}
   }
 
