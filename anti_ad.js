@@ -113,6 +113,7 @@ var f = function() {
         || es[i].id.indexOf("amznad") === 0
         || es[i].id.indexOf("aswift") === 0
         || es[i].id.indexOf("utif_apn_ad_slot_") === 0
+        || es[i].id.indexOf("sovrn_ad_unit_") === 0
         )
       b.push(es[i]);
 
@@ -251,6 +252,55 @@ var f = function() {
   for(var i=0; i<es.length; ++i)
     b.push(es[i]);
 
+  // Remove some newer upper-right ads in youtube
+  es = document.getElementsByTagName('ytd-movie-offer-module-renderer');
+  for(var i=0; i<es.length; ++i)
+    b.push(es[i]);
+
+  // Remove Google Doodle
+  if(   window.location.host.endsWith('google.com')
+      &&
+        window.location.pathname === '/'
+      ){
+    const e = document.getElementById('hplogo');
+    if(e !== null)
+      b.push(e);
+  }
+
+  // Remove Google Doodle from chrome://newtab
+  if(window.location.href.startsWith('https://www.google.com/_/chrome/newtab?')) {
+    const e = document.getElementById('dood');
+    if(e !== null)
+      b.push(e);
+  }
+
+  // Newer Quora "Ad by" thingies
+  es = document.getElementsByTagName('div');
+  for(let i=0; i<es.length; ++i) {
+    const should_remove = function() {
+      try {
+        if(!es[i].innerText.startsWith('Ad by '))
+          return false;
+
+        let node = es[i];
+        for(let j=0; j<100; ++j)
+          if(node.parentNode.classList.contains('layout_2col_main'))
+            break;
+          else
+            node = node.parentNode;
+        if(j >= 100)
+          return false;
+
+        return node;
+      } catch(e) {
+        return false;
+      }
+    };
+    const r = should_remove();
+    if(r !== false)
+      b.push(r);
+  }
+
   // Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
   for(let i=0; i<es.length; ++i) {
@@ -283,12 +333,16 @@ var f = function() {
   for(let i=0; i<es.length; ++i) {
     const should_remove = function() {
       try {
-        if(!es[i].innerText.startsWith('Promoted by '))
+        if(
+              !es[i].innerText.startsWith('Promoted by ')
+            &&
+              es[i].innerText !== 'By Quora for Business'
+            )
           return false;
 
         let node = es[i];
         for(let j=0; j<100; ++j)
-          if(node.classList.contains('pagedlist_item'))
+          if(node.parentNode.classList.contains('paged_list_wrapper'))
             break;
           else
             node = node.parentNode;
@@ -475,8 +529,10 @@ var f = function() {
   // Disable if necessary
   if(disable) {
     console.log('disabling because: ' + disable.reason);
-    clearTimeout(timeout_handle);
-    document.head.remove();
+//    clearTimeout(timeout_handle);
+    if(document.head !== null) {
+      document.head.remove();
+    }
     document.body.remove();
     document.children[0].appendChild(document.createElement('body'));
     document.body.appendChild(document.createTextNode('Tommy has decided that this page cannot be viewed.'));
