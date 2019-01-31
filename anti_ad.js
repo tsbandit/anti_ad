@@ -1,8 +1,14 @@
 (function() {
 
 
+console.log(window.location.href);
+
 var timeout_handle = null;
 var iframe_covers = [];
+
+const sleep = (n) => new Promise((resolve, reject) => {
+  setTimeout(resolve, n);
+});
 
 
 var is_fixed = function(el) {
@@ -19,7 +25,7 @@ var is_fixed = function(el) {
 };
 
 // This function removes a bunch of bad stuff from the DOM
-var f = function() {
+var f = async function() {
   var b = [];  // array of elements that will be removed
   var es;      // collection of elements                  (temp variable)
   var ess;     // another collection of elements          (temp variable)
@@ -45,11 +51,16 @@ var f = function() {
   nuke_class('advertisement');
   nuke_class('direct-ad-frame');  // Gyazo ads
   nuke_class('clc-cp-container');  // Some stackoverflow ads?
+  nuke_class('ethical-content');  // readthedocs.io
+
+  await(sleep(0));
 
   // Remove youtube "related ad videos"
   es = document.getElementsByClassName('ad-badge-byline');
   for(var i=0; i<es.length; ++i)
     b.push(es[i].parentNode.parentNode);
+
+  await(sleep(0));
 
   // Completely destroy webpages built by infolinks
   es = document.getElementsByTagName('iframe');
@@ -82,6 +93,7 @@ var f = function() {
     }
   }
       
+  await(sleep(0));
 
   // Filter <a> elements by href
   es = document.getElementsByTagName("a");
@@ -90,6 +102,8 @@ var f = function() {
         ||  ''.indexOf.call(es[i].href, "adzerk.net") >= 0
         )
       b.push(es[i]);
+
+  await(sleep(0));
 
   // Filter <iframe> elements by src
   es = document.getElementsByTagName("iframe");
@@ -102,6 +116,8 @@ var f = function() {
         ||  es[i].src.indexOf("bidvertiser.com") >= 0
         )
       b.push(es[i]);
+
+  await(sleep(0));
 
   // Filter <iframe> elements by id
   es = document.getElementsByTagName("iframe");
@@ -117,6 +133,8 @@ var f = function() {
         )
       b.push(es[i]);
 
+  await(sleep(0));
+
 /*
   // Filter <iframe> elements by class
   es = document.getElementsByTagName('iframe');
@@ -128,6 +146,8 @@ var f = function() {
       b.push(es[i]);
 */
 
+  await(sleep(0));
+
   // Filter <img> elements by src
   es = document.getElementsByTagName("img");
   for(var i=0; i<es.length; ++i)
@@ -136,11 +156,15 @@ var f = function() {
         )
       b.push(es[i]);
 
+  await(sleep(0));
+
   // Filter elements containing suspicious <script> elements
   es = document.getElementsByTagName('script');
   for(var i=0; i<es.length; ++i)
     if(es[i].innerText.indexOf('ads.intergi.com') >= 0)
       b.push(es[i].parentNode);
+
+  await(sleep(0));
 
   // Filter <div> elements by id
   es = document.getElementsByTagName("div");
@@ -157,17 +181,23 @@ var f = function() {
         )
       b.push(es[i]);
 
+  await(sleep(0));
+
   // Filter <div> elements by class
   es = document.getElementsByTagName("div");
   for(var i=0; i<es.length; ++i)
     if(es[i].className.indexOf('taboola') >= 0)
       b.push(es[i]);
 
+  await(sleep(0));
+
   // Remove old-reddit promoted post
   es = document.getElementsByClassName('sponsored-tagline');
   for(var i=0; i<es.length; ++i)
     if(es[i].parentNode.parentNode.className.indexOf('promotedlink') >= 0)
       b.push(es[i].parentNode.parentNode);
+
+  await(sleep(0));
 
   // Remove reddit promoted post
   es = document.getElementsByTagName('span');
@@ -202,6 +232,8 @@ var f = function() {
       b.push(r);
   }
 
+  await(sleep(0));
+
   // Find <iframe> elements that are siblings of <div> with
   // id matching "google_ads"
   es = document.getElementsByTagName("div");
@@ -215,6 +247,8 @@ var f = function() {
           || ess[j].tagName === 'IFRAME' )
         b.push(ess[j]);
   }
+
+  await(sleep(0));
 
   // Remove reddit ads (iframes that are direct children of <div id="...">)
   var remove_reddit = function(x) {
@@ -231,6 +265,8 @@ var f = function() {
   remove_reddit('ad_main');
   remove_reddit('ad_main_top');
 
+  await(sleep(0));
+
   // Remove some stackoverflow ads ...
   var e = document.getElementById('hireme');
   if(e !== null) {
@@ -240,6 +276,8 @@ var f = function() {
       b.push(e);
   }
 
+  await(sleep(0));
+
   // Actually, this code removes some stuff that isn't ads. So I better try something else instead.
 //  // Remove some facebook ads
 //  es = document.getElementsByClassName('ego_unit');
@@ -247,15 +285,21 @@ var f = function() {
 //    if(typeof es[i].getAttribute('data-ego-fbid') === 'string')
 //      b.push(es[i]);
 
+  await(sleep(0));
+
   // Remove some sidebar ads in youtube
   es = document.getElementsByTagName('ytd-compact-promoted-video-renderer');
   for(var i=0; i<es.length; ++i)
     b.push(es[i]);
 
+  await(sleep(0));
+
   // Remove some newer upper-right ads in youtube
   es = document.getElementsByTagName('ytd-movie-offer-module-renderer');
   for(var i=0; i<es.length; ++i)
     b.push(es[i]);
+
+  await(sleep(0));
 
   // Remove Google Doodle
   if(   window.location.host.endsWith('google.com')
@@ -267,12 +311,16 @@ var f = function() {
       b.push(e);
   }
 
+  await(sleep(0));
+
   // Remove Google Doodle from chrome://newtab
   if(window.location.href.startsWith('https://www.google.com/_/chrome/newtab?')) {
     const e = document.getElementById('dood');
     if(e !== null)
       b.push(e);
   }
+
+  await(sleep(0));
 
   // Newer Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
@@ -301,6 +349,8 @@ var f = function() {
       b.push(r);
   }
 
+  await(sleep(0));
+
   // Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
   for(let i=0; i<es.length; ++i) {
@@ -328,8 +378,19 @@ var f = function() {
       b.push(r);
   }
 
+  await(sleep(0));
+
   // Quora "Promoted by" thingies
-  es = document.getElementsByTagName('div');
+  es = (function() {
+    const a1 = document.getElementsByTagName('div');
+    const a2 = document.getElementsByTagName('p');
+    const result = [];
+    for(let i=0; i<a1.length; ++i)
+      result.push(a1[i]);
+    for(let i=0; i<a2.length; ++i)
+      result.push(a2[i]);
+    return result;
+  }());
   for(let i=0; i<es.length; ++i) {
     const should_remove = function() {
       try {
@@ -337,12 +398,18 @@ var f = function() {
               !es[i].innerText.startsWith('Promoted by ')
             &&
               es[i].innerText !== 'By Quora for Business'
+            &&
+              !es[i].innerText.startsWith('Sponsored by ')
             )
           return false;
 
         let node = es[i];
         for(let j=0; j<100; ++j)
-          if(node.parentNode.classList.contains('paged_list_wrapper'))
+          if(
+                node.parentNode.classList.contains('paged_list_wrapper')
+              ||
+                node.parentNode.classList.contains('pagelist_item')
+              )
             break;
           else
             node = node.parentNode;
@@ -359,11 +426,15 @@ var f = function() {
       b.push(r);
   }
 
+  await(sleep(0));
+
   // Finally remove those elements we filtered
   for(var i=0; i<b.length; ++i) {
     b[i].remove();
     console.log('removed!');
   }
+
+  await(sleep(0));
 
   // Remove a few elements with specific id
   var remove = function(x) {
@@ -380,6 +451,8 @@ var f = function() {
   remove('pubmatic_parent');
   remove('player-ads');  //Youtube video top-right ads
   remove('at4-share');  // A floating share-button thingie on the side
+
+  await(sleep(0));
 
   // Cover any remaining iframes
   var iframes = document.getElementsByTagName('iframe');
@@ -437,6 +510,8 @@ var f = function() {
     }
   }());}
 
+  await(sleep(0));
+
   // Clean up any iframe-covers that shouldn't exist anymore.
   for(var j=iframe_covers.length-1; j>=0; --j) {
     if(!document.body.contains(iframe_covers[j].iframe)) {
@@ -445,6 +520,8 @@ var f = function() {
       iframe_covers.splice(j, 1);
     }
   }
+
+  await(sleep(0));
 
   // "Log in to Facebook!"
   // Look for <a> tags containing "Not Now" and with other telling signs nearby
@@ -472,6 +549,8 @@ var f = function() {
     es[i].parentElement.parentElement.parentElement.remove();
   }
 
+  await(sleep(0));
+
   // Skip youtube video ads
   var es = document.getElementsByTagName('video');
   for(var i=0; i<es.length; ++i) {
@@ -484,10 +563,33 @@ var f = function() {
       } catch(_) {}
   }
 
+  await(sleep(0));
+
+  // Skip funimation video ads
+  if(window.location.href.startsWith('https://www.funimation.com/player')) {
+    (async() => {
+      const n = 15;
+      for(let i=0; i<n; ++i) {
+        const xs = document.getElementsByClassName('vjs-fw-video');
+
+        for(let i=0; i<xs.length; ++i) {
+          const x = xs[0];
+          x.currentTime = 35;
+          x.muted = 'muted';
+        }
+
+        await sleep(1000/n);
+      }
+    })();
+  };
+
+  await(sleep(0));
+
   // Determine whether to disable this webpage
   {
     var disable = false;
 
+/*
     // Disable /r/factorio
     var es = document.getElementsByTagName('em');
     for(var i=0; i<es.length; ++i) {
@@ -498,9 +600,13 @@ var f = function() {
     // Disable /r/ffviiremake
     if(window.getComputedStyle(document.body, false).backgroundImage === 'url("https://a.thumbs.redditmedia.com/mgKSOsATIw9wFPOwGjD3cR9IyN2zD7ZJZ9iO3ooT2D4.png")')
       disable = {reason: 'ffviiremake subreddit'};
+*/
 
     // Disable certain hostnames
-    if(     window.location.hostname.indexOf('twitch.tv') >= 0
+    if(false
+        ||  window.location.hostname.indexOf('twitch.tv') >= 0
+        ||  window.location.hostname.indexOf('factorio.com') >= 0
+        ||  window.location.hostname.indexOf('reddit.com') >= 0
         )
       disable = {reason: 'banned hostname'};
 
@@ -522,14 +628,21 @@ var f = function() {
           disable = {reason: 'url contains: ' + ch};
       }
     }
+
+    // Only disable at certain times of day
+    const time = new Date().getHours();
+    if(time >= 12  &&  time < 22)
+      disable = false;
   }
 
-//  console.log('stupid');
+  disable = false;
+
+  await(sleep(0));
 
   // Disable if necessary
   if(disable) {
     console.log('disabling because: ' + disable.reason);
-//    clearTimeout(timeout_handle);
+    clearTimeout(timeout_handle);
     if(document.head !== null) {
       document.head.remove();
     }
