@@ -24,6 +24,16 @@ var is_fixed = function(el) {
   throw 'loop ran for too long';
 };
 
+const site = function(s) {
+  return window.location.hostname.endsWith(s);
+};
+
+if(window.location.href === 'https://www.reddit.com/r/yangforpresidenthq/new/') {
+  setTimeout(function() {
+    window.location.reload();
+  }, 10 * 1000);
+}
+
 // This function removes a bunch of bad stuff from the DOM
 var f = async function() {
   var b = [];  // array of elements that will be removed
@@ -52,6 +62,14 @@ var f = async function() {
   nuke_class('direct-ad-frame');  // Gyazo ads
   nuke_class('clc-cp-container');  // Some stackoverflow ads?
   nuke_class('ethical-content');  // readthedocs.io
+  nuke_class('ytp-endscreen-content');  // youtube related videos
+
+  await(sleep(0));
+
+  // Remove youtube related videos in sidebar
+  es = document.getElementsByTagName('ytd-compact-video-renderer');
+  for(let i=0; i<es.length; ++i)
+    b.push(es[i]);
 
   await(sleep(0));
 
@@ -320,6 +338,34 @@ var f = async function() {
       b.push(e);
   }
 
+  const get_ancestor = function(node, f) {
+    for(let j=0; j<100; ++j) {
+      if(node === null)
+        return null;
+      else if(f(node))
+        return node;
+      else
+        node = node.parentNode;
+    }
+    return null;
+  };
+
+  await(sleep(0));
+
+  // Some Facebook ads
+  if(site('facebook.com')) {
+    es = document.getElementsByTagName('a');
+    for(let i=0; i<es.length; ++i) {
+      if(es[i].innerText !== 'Sponsored')
+        continue;
+      const node = get_ancestor(es[i], (x) => {
+        return x.classList.contains('ego_section');
+      });
+      if(node !== null)
+        b.push(node);
+    }
+  }
+
   await(sleep(0));
 
   // Newer Quora "Ad by" thingies
@@ -328,24 +374,17 @@ var f = async function() {
     const should_remove = function() {
       try {
         if(!es[i].innerText.startsWith('Ad by '))
-          return false;
+          return null;
 
-        let node = es[i];
-        for(let j=0; j<100; ++j)
-          if(node.parentNode.classList.contains('layout_2col_main'))
-            break;
-          else
-            node = node.parentNode;
-        if(j >= 100)
-          return false;
-
-        return node;
+        return get_ancestor(es[i], (x) => {
+          return x.parentNode.classList.contains('question_main_col');
+        });
       } catch(e) {
-        return false;
+        return null;
       }
     };
     const r = should_remove();
-    if(r !== false)
+    if(r !== null)
       b.push(r);
   }
 
