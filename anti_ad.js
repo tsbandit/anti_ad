@@ -3,8 +3,33 @@
 
 console.log(window.location.href);
 
-var timeout_handle = null;
-var iframe_covers = [];
+// Refer to https://stackoverflow.com/questions/21751377/foolproof-way-to-detect-if-this-page-is-inside-a-cross-domain-iframe
+const is_cross_origin_iframe = function() {
+  try {
+    if(window.top === window.self)
+      return false;
+    return (!window.top.location.hostname);  // For checking cross-origin
+//    return true;
+  } catch (e) {
+    return true;
+  }
+};
+
+if(is_cross_origin_iframe()) {
+  const iframe_cover = document.createElement('div');
+  const style = iframe_cover.style;
+  style.backgroundColor = 'rgba(64,64,64,1)';
+  style.color = 'rgba(255,255,255,1)';
+  style.font = 'medium sans-serif';
+  style.position = 'fixed';
+  style.left = style.top = style.right = style.bottom = '0';
+  style.zIndex = 9e10;
+  iframe_cover.innerText = 'Show iframe';
+  iframe_cover.onclick = function() {
+    iframe_cover.remove();
+  };
+  document.body.appendChild(iframe_cover);
+}
 
 const sleep = (n) => new Promise((resolve, reject) => {
   setTimeout(resolve, n);
@@ -490,75 +515,6 @@ var f = async function() {
   remove('pubmatic_parent');
   remove('player-ads');  //Youtube video top-right ads
   remove('at4-share');  // A floating share-button thingie on the side
-
-  await(sleep(0));
-
-  // Cover any remaining iframes
-  var iframes = document.getElementsByTagName('iframe');
-  for(var i=0; i<iframes.length; ++i) {(function() {
-    var iframe = iframes[i];
-
-    // Find the cover for this iframe
-    var entry = null;
-    for(var j=0; j<iframe_covers.length; ++j)
-      if(iframe_covers[j].iframe === iframe)
-        entry = iframe_covers[j];
-
-    var cover = null;
-
-    // Create the cover if it doesn't exist
-    if(entry === null) {
-      cover = document.createElement('div');
-      cover.style.backgroundColor = 'rgba(128,128,128,1)';
-      cover.style.color = 'rgba(255,255,255,1)';
-      cover.style.font = 'medium sans-serif';
-      cover.innerText = 'Show iframe';
-      cover.style.overflow = 'hidden';
-      document.body.appendChild(cover);
-
-      entry = {cover: cover, iframe: iframe};
-      iframe_covers.push(entry);
-
-      cover.onclick = function() {
-        entry.cover = false;
-        cover.remove();
-      };
-    }
-
-    if(cover === null)
-      cover = entry.cover;
-
-    if(cover !== false) {
-      // Position the cover over the iframe
-      var s = getComputedStyle(iframe);
-      cover.style.position = 'absolute';
-      var rect = iframe.getBoundingClientRect();
-      var xoff = pageXOffset;
-      var yoff = pageYOffset;
-      if(iframe===null)
-        throw 0;
-      if(is_fixed(iframe)) {
-        xoff = yoff = 0;
-        cover.style.position = 'fixed';
-      }
-      cover.style.left = (rect.left + xoff) + 'px';
-      cover.style.top = (rect.top + yoff) + 'px';
-      cover.style.width = rect.width + 'px';
-      cover.style.height = rect.height + 'px';
-      cover.style.zIndex = 999999999999;
-    }
-  }());}
-
-  await(sleep(0));
-
-  // Clean up any iframe-covers that shouldn't exist anymore.
-  for(var j=iframe_covers.length-1; j>=0; --j) {
-    if(!document.body.contains(iframe_covers[j].iframe)) {
-      if(iframe_covers[j].cover !== false)
-        iframe_covers[j].cover.remove();
-      iframe_covers.splice(j, 1);
-    }
-  }
 
   await(sleep(0));
 
