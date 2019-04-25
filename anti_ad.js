@@ -59,6 +59,16 @@ if(window.location.href === 'https://www.reddit.com/r/yangforpresidenthq/new/') 
   }, 10 * 1000);
 }
 
+const maybe_yield = (function() {
+  let timestamp = performance.now();
+  return async function() {
+    if(performance.now() - timestamp  >  2) {
+      await sleep(0);
+      timestamp = performance.now();
+    }
+  };
+}());
+
 // This function removes a bunch of bad stuff from the DOM
 var f = async function() {
   var b = [];  // array of elements that will be removed
@@ -66,10 +76,12 @@ var f = async function() {
   var ess;     // another collection of elements          (temp variable)
 
   // Filter elements by exact class
-  var nuke_class = function(classname) {
+  var nuke_class = async function(classname) {
     var es = document.getElementsByClassName(classname);
-    for(var i=0; i<es.length; ++i)
+    for(var i=0; i<es.length; ++i) {
       b.push(es[i]);
+      await maybe_yield();
+    }
   };
   nuke_class('ad');
   nuke_class('spx-adwords');
@@ -89,19 +101,21 @@ var f = async function() {
   nuke_class('ethical-content');  // readthedocs.io
   nuke_class('ytp-endscreen-content');  // youtube related videos
 
-  await(sleep(0));
-
   // Remove youtube related videos in sidebar
   es = document.getElementsByTagName('ytd-compact-video-renderer');
-  for(let i=0; i<es.length; ++i)
+  for(let i=0; i<es.length; ++i) {
     b.push(es[i]);
+    await maybe_yield();
+  }
 
   await(sleep(0));
 
   // Remove youtube "related ad videos"
   es = document.getElementsByClassName('ad-badge-byline');
-  for(var i=0; i<es.length; ++i)
+  for(var i=0; i<es.length; ++i) {
     b.push(es[i].parentNode.parentNode);
+    await maybe_yield();
+  }
 
   await(sleep(0));
 
@@ -124,6 +138,7 @@ var f = async function() {
   }
   es = document.getElementsByClassName('IL_AD');
   for(var i=0; i<es.length; ++i) {
+    await maybe_yield();
     if(es[i].tagName==='span' || es[i].tagName==='SPAN') {
       var replacement = document.createElement('span');
 
