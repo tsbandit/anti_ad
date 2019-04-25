@@ -408,6 +408,18 @@ var f = async function() {
 
   await(sleep(0));
 
+  // Some reddit ads
+  if(site('reddit.com')) {
+    es = document.getElementsByTagName('div');
+    for(let i=0; i<es.length; ++i) {
+      if(window.getComputedStyle(es[i], '::before').content === '"advertisement"')
+        b.push(es[i]);
+      await maybe_yield();
+    }
+  }
+
+  await(sleep(0));
+
   // Newer Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
   for(let i=0; i<es.length; ++i) {
