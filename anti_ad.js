@@ -587,6 +587,23 @@ var f = async function() {
 
   await(sleep(0));
 
+  // Skip twitter video ads
+  if(site('twitter.com')) {
+    es = document.getElementsByTagName('video');
+    for(let i=0; i<es.length; ++i) {
+      try {
+        const ad_indicators = es[i].parentElement.parentElement.parentElement.parentElement.parentElement.children[1]
+        for(let j=0; j<ad_indicators.children; ++j)
+          .children[0].children[0].children[0].children[0].children[1];
+        if(ad_indicator.getAttribute('data-testid') === 'ad' && ad_indicator.innerText === 'Ad') {
+          es[i].currentTime = es[i].duration;
+          console.log('Skipped twitter video ad');
+        }
+      } catch(_) {
+      }
+    }
+  }
+
   // Skip funimation video ads
   if(window.location.href.startsWith('https://www.funimation.com/player')) {
     (async() => {
