@@ -1,4 +1,4 @@
-(function() {
+(async function() {
 
 
 console.log(window.location.href);
@@ -59,52 +59,203 @@ if(window.location.href === 'https://www.reddit.com/r/yangforpresidenthq/new/') 
   }, 10 * 1000);
 }
 
-const maybe_yield = (function() {
+const occasionally_do = (function() {
   let timestamp = performance.now();
-  return async function() {
+  return async function(f) {
     if(performance.now() - timestamp  >  2) {
-      await sleep(0);
+      await f();
       timestamp = performance.now();
     }
   };
 }());
 
+const get_ancestor = function(node, f) {
+  for(let j=0; j<100; ++j) {
+    if(node === document)
+      return null;
+    else if(f(node))
+      return node;
+    else
+      node = node.parentNode;
+  }
+  return null;
+};
+
+const decaying_interval = function(f) {
+  let n = 100;
+  const g = function() {
+    setTimeout(g, n);
+    if(n < 1000)
+      n *= 1.1;
+    f();
+  };
+  setTimeout(g, 0);
+};
+
+const get_stack = function() {
+  try {
+    throw new Error();
+  } catch(e) {
+    return e.stack;
+  }
+};
+
+const log_stack = function() {
+  console.log(get_stack());
+}
+
+const remove = function(x) {
+  var e = document.getElementById(x);
+  if(e !== null)
+    e.remove();
+};
+
+const twitter_helper = function() {
+  // Skip Twitter video ads
+  if(site('twitter.com')) {
+    es = document.querySelectorAll('[data-testid="ad"]');
+    for(let i=0; i<es.length; ++i) {
+      const ancestor = get_ancestor(es[i], (x)=>x.classList.contains('PlayableMedia-reactWrapper'));
+      if(ancestor !== null) {
+        try {
+          const video = ancestor.children[0].children[0].children[0].children[0].children[0].children[0];
+          if(video.tagName === 'VIDEO') {
+            video.currentTime = video.duration;
+            console.log('Skipped twitter video ad');
+          }
+        } catch(_) {
+        }
+      }
+    }
+  }
+
+  // Remove Twitter promoted tweets
+  if(site('twitter.com')) {
+    const es = document.querySelectorAll('*[data-testid="tweet"] svg + div span');
+    for(let i=0; i<es.length; ++i) {
+      if(!es[i].innerText.startsWith('Promoted'))
+        continue;
+
+      const node = get_ancestor(es[i], (x) => {
+        return x.getAttribute('data-testid') === 'tweet';
+      });
+      if(node !== null) {
+        node.remove();
+        console.log('removed twitter promoted tweet');
+      }
+    }
+  }
+
+  const is_separator_element = function(div) {
+    // Argument should be a child of the main timeline div [aria-label="Timeline: Your Home Timeline"]
+
+    let x = true;
+    x = x && (div.children.length === 1);
+    x = x && (div.children[0].children.length === 1);
+    x = x && (window.getComputedStyle(div.children[0].children[0]).backgroundColor === 'rgb(230, 236, 240)');
+    return x;
+  };
+
+  // Remove Twitter "Who to follow" in the tweet stream
+  if(site('twitter.com')) {
+    const es = document.querySelectorAll('*[aria-label="Timeline: Your Home Timeline"]');
+    let remove_mode = false;
+    for(let i=0; i<es.length; ++i) {
+      for(let j=0; j<es[i].children[0].children[0].children.length; ++j) {
+        const node = es[i].children[0].children[0].children[j];
+
+        if(node.innerText === 'Who to follow')
+          remove_mode = true;
+
+        if(is_separator_element(node))
+          remove_mode = false;
+
+        if(remove_mode) {
+          node.remove();
+          console.log('removed twitter "who to follow" in the tweet stream');
+        }
+      }
+    }
+  }
+
+  // Remove Twitter "<someone> follows" tweets
+  if(site('twitter.com')) {
+    const es = document.querySelectorAll('*[data-testid="tweet"]');
+    for(let i=0; i<es.length; ++i) {
+      const node = es[i].previousSibling;
+
+      if(node === null)
+        continue;
+
+      if(     !node.innerText.endsWith(' follows')
+          &&  !node.innerText.endsWith(' follow' ) )
+        continue;
+
+      es[i].remove();
+      console.log('removed twitter "someone follows" tweet');
+    }
+  }
+};
+
 // This function removes a bunch of bad stuff from the DOM
-var f = async function() {
-  var b = [];  // array of elements that will be removed
-  var es;      // collection of elements                  (temp variable)
-  var ess;     // another collection of elements          (temp variable)
+const f = async function() {
+  let b = [];  // array of elements that will be removed
+  let es;      // collection of elements                  (temp variable)
+  let ess;     // another collection of elements          (temp variable)
+  const bflush = function() {
+    // Remove all the nodes we planned to remove.
+    for(var i=0; i<b.length; ++i) {
+      b[i].node.remove();
+      console.log('['+window.location.href+'] removed:');
+      console.log(b[i].stack);
+    }
+    b = [];
+  };
+  const maybe_yield = () => occasionally_do(async() => {
+    await sleep(0);
+    bflush();
+  });
+  const remove_later = function(node) {
+    b.push({
+      node,
+      stack: new Error(),
+    });
+  };
 
   // Filter elements by exact class
-  var nuke_class = async function(classname) {
-    var es = document.getElementsByClassName(classname);
-    for(var i=0; i<es.length; ++i) {
-      b.push(es[i]);
-      await maybe_yield();
+  {
+    var nuke_class = async function(classname) {
+      const es = document.getElementsByClassName(classname);
+      for(var i=0; i<es.length; ++i) {
+        remove_later(es[i]);
+        await maybe_yield();
+      }
+    };
+    nuke_class('ad');
+    nuke_class('spx-adwords');
+    nuke_class('ad-banner-container');
+    nuke_class('ad-container');
+    nuke_class('adzerk-vote');
+    nuke_class('ac_adbox_inner');
+    nuke_class('adModule');
+    nuke_class('pb-ads');
+    nuke_class('video-ads');
+    nuke_class('moov-banner-wrapper');
+    nuke_class('js-ima-ads-container');  // twitch video ads
+    nuke_class('direct-ad-frame');  // Gyazo ads
+    nuke_class('clc-cp-container');  // Some stackoverflow ads?
+    nuke_class('ethical-content');  // readthedocs.io
+    nuke_class('ytp-endscreen-content');  // youtube related videos
+
+    if(!site('imgur.com')) {  // Doesn't work on imgur
+      nuke_class('advertisement');
     }
-  };
-  nuke_class('ad');
-  nuke_class('spx-adwords');
-  nuke_class('advertisement');
-  nuke_class('ad-banner-container');
-  nuke_class('ad-container');
-  nuke_class('adzerk-vote');
-  nuke_class('ac_adbox_inner');
-  nuke_class('adModule');
-  nuke_class('pb-ads');
-  nuke_class('video-ads');
-  nuke_class('moov-banner-wrapper');
-  nuke_class('js-ima-ads-container');  // twitch video ads
-  nuke_class('advertisement');
-  nuke_class('direct-ad-frame');  // Gyazo ads
-  nuke_class('clc-cp-container');  // Some stackoverflow ads?
-  nuke_class('ethical-content');  // readthedocs.io
-  nuke_class('ytp-endscreen-content');  // youtube related videos
+  }
 
   // Remove youtube related videos in sidebar
   es = document.getElementsByTagName('ytd-compact-video-renderer');
   for(let i=0; i<es.length; ++i) {
-    b.push(es[i]);
+    remove_later(es[i]);
     await maybe_yield();
   }
 
@@ -113,7 +264,7 @@ var f = async function() {
   // Remove youtube "related ad videos"
   es = document.getElementsByClassName('ad-badge-byline');
   for(var i=0; i<es.length; ++i) {
-    b.push(es[i].parentNode.parentNode);
+    remove_later(es[i].parentNode.parentNode);
     await maybe_yield();
   }
 
@@ -130,7 +281,7 @@ var f = async function() {
           ess = document.body.childNodes;
           for(var j=0; j<ess.length; ++j)
             if(ess[j] !== es[i] && ess[j] !== real_page)
-              b.push(ess[j]);
+              remove_later(ess[j]);
           break;
         }
       }
@@ -159,21 +310,23 @@ var f = async function() {
     if(     ''.indexOf.call(es[i].href, "trafficfactory.biz") >= 0
         ||  ''.indexOf.call(es[i].href, "adzerk.net") >= 0
         )
-      b.push(es[i]);
+      remove_later(es[i]);
 
   await(sleep(0));
 
-  // Filter <iframe> elements by src
-  es = document.getElementsByTagName("iframe");
-  for(var i=0; i<es.length; ++i)
-    if(
-            es[i].src.indexOf("adnxs.com") >= 0
-        ||  es[i].src.indexOf("disqusads.com") >= 0
-        ||  es[i].src.indexOf("amazon-adsystem.com") >= 0
-        ||  es[i].src.indexOf("google.com/afs/ads") >= 0
-        ||  es[i].src.indexOf("bidvertiser.com") >= 0
-        )
-      b.push(es[i]);
+  if(!site('imgur.com')) {
+    // Filter <iframe> elements by src
+    es = document.getElementsByTagName("iframe");
+    for(var i=0; i<es.length; ++i)
+      if(
+              es[i].src.indexOf("adnxs.com") >= 0
+          ||  es[i].src.indexOf("disqusads.com") >= 0
+          ||  es[i].src.indexOf("amazon-adsystem.com") >= 0
+          ||  es[i].src.indexOf("google.com/afs/ads") >= 0
+          ||  es[i].src.indexOf("bidvertiser.com") >= 0
+          )
+        remove_later(es[i]);
+  }
 
   await(sleep(0));
 
@@ -189,7 +342,7 @@ var f = async function() {
         || es[i].id.indexOf("utif_apn_ad_slot_") === 0
         || es[i].id.indexOf("sovrn_ad_unit_") === 0
         )
-      b.push(es[i]);
+      remove_later(es[i]);
 
   await(sleep(0));
 
@@ -201,18 +354,20 @@ var f = async function() {
             es[i].className.indexOf('qc-ad') >= 0
         ||  es[i].className.indexOf('cnvr-ad') >= 0
         )
-      b.push(es[i]);
+      remove_later(es[i]);
 */
 
   await(sleep(0));
 
-  // Filter <img> elements by src
-  es = document.getElementsByTagName("img");
-  for(var i=0; i<es.length; ++i)
-    if(
-            es[i].src.indexOf('adnxs.com') >= 0
-        )
-      b.push(es[i]);
+  if(!site('imgur.com')) {
+    // Filter <img> elements by src
+    es = document.getElementsByTagName("img");
+    for(var i=0; i<es.length; ++i)
+      if(
+              es[i].src.indexOf('adnxs.com') >= 0
+          )
+        remove_later(es[i]);
+  }
 
   await(sleep(0));
 
@@ -220,7 +375,7 @@ var f = async function() {
   es = document.getElementsByTagName('script');
   for(var i=0; i<es.length; ++i)
     if(es[i].innerText.indexOf('ads.intergi.com') >= 0)
-      b.push(es[i].parentNode);
+      remove_later(es[i].parentNode);
 
   await(sleep(0));
 
@@ -237,7 +392,7 @@ var f = async function() {
         || es[i].id.indexOf('adblock') >= 0
         || es[i].id.indexOf('trc_wrapper_') === 0  // Sponsored links by Taboola
         )
-      b.push(es[i]);
+      remove_later(es[i]);
 
   await(sleep(0));
 
@@ -245,7 +400,7 @@ var f = async function() {
   es = document.getElementsByTagName("div");
   for(var i=0; i<es.length; ++i)
     if(es[i].className.indexOf('taboola') >= 0)
-      b.push(es[i]);
+      remove_later(es[i]);
 
   await(sleep(0));
 
@@ -253,11 +408,14 @@ var f = async function() {
   es = document.getElementsByClassName('sponsored-tagline');
   for(var i=0; i<es.length; ++i)
     if(es[i].parentNode.parentNode.className.indexOf('promotedlink') >= 0)
-      b.push(es[i].parentNode.parentNode);
+      remove_later(es[i].parentNode.parentNode);
 
   await(sleep(0));
 
   // Remove reddit promoted post
+  if(site('reddit.com')) {
+
+
   es = document.getElementsByTagName('span');
   for(let i=0; i<es.length; ++i) {
     const should_remove = function() {
@@ -287,7 +445,10 @@ var f = async function() {
     };
     const r = should_remove();
     if(r !== false)
-      b.push(r);
+      remove_later(r);
+  }
+
+
   }
 
   await(sleep(0));
@@ -303,7 +464,7 @@ var f = async function() {
     for(var j=0; j<ess.length; ++j)
       if(    ess[j].tagName === 'iframe'
           || ess[j].tagName === 'IFRAME' )
-        b.push(ess[j]);
+        remove_later(ess[j]);
   }
 
   await(sleep(0));
@@ -318,7 +479,7 @@ var f = async function() {
     for(var i=0; i<es.length; ++i)
       if(    es[i].tagName === 'iframe'
           || es[i].tagName === 'IFRAME' )
-        b.push(es[i]);
+        remove_later(es[i]);
   };
   remove_reddit('ad_main');
   remove_reddit('ad_main_top');
@@ -331,7 +492,7 @@ var f = async function() {
     if(     e.innerText.indexOf('Jobs near you') === 0
         ||  e.innerText.indexOf('Looking for a job?') === 0
         )
-      b.push(e);
+      remove_later(e);
   }
 
   await(sleep(0));
@@ -341,21 +502,21 @@ var f = async function() {
 //  es = document.getElementsByClassName('ego_unit');
 //  for(var i=0; i<es.length; ++i)
 //    if(typeof es[i].getAttribute('data-ego-fbid') === 'string')
-//      b.push(es[i]);
+//      remove_later(es[i]);
 
   await(sleep(0));
 
   // Remove some sidebar ads in youtube
   es = document.getElementsByTagName('ytd-compact-promoted-video-renderer');
   for(var i=0; i<es.length; ++i)
-    b.push(es[i]);
+    remove_later(es[i]);
 
   await(sleep(0));
 
   // Remove some newer upper-right ads in youtube
   es = document.getElementsByTagName('ytd-movie-offer-module-renderer');
   for(var i=0; i<es.length; ++i)
-    b.push(es[i]);
+    remove_later(es[i]);
 
   await(sleep(0));
 
@@ -366,7 +527,7 @@ var f = async function() {
       ){
     const e = document.getElementById('hplogo');
     if(e !== null)
-      b.push(e);
+      remove_later(e);
   }
 
   await(sleep(0));
@@ -375,20 +536,8 @@ var f = async function() {
   if(window.location.href.startsWith('https://www.google.com/_/chrome/newtab?')) {
     const e = document.getElementById('dood');
     if(e !== null)
-      b.push(e);
+      remove_later(e);
   }
-
-  const get_ancestor = function(node, f) {
-    for(let j=0; j<100; ++j) {
-      if(node === null)
-        return null;
-      else if(f(node))
-        return node;
-      else
-        node = node.parentNode;
-    }
-    return null;
-  };
 
   await(sleep(0));
 
@@ -402,7 +551,7 @@ var f = async function() {
         return x.classList.contains('ego_section');
       });
       if(node !== null)
-        b.push(node);
+        remove_later(node);
     }
   }
 
@@ -413,12 +562,39 @@ var f = async function() {
     es = document.getElementsByTagName('div');
     for(let i=0; i<es.length; ++i) {
       if(window.getComputedStyle(es[i], '::before').content === '"advertisement"')
-        b.push(es[i]);
+        remove_later(es[i]);
       await maybe_yield();
     }
   }
 
   await(sleep(0));
+
+  // Twitter "Who to follow" and "Trends for you" and "Relevant people"
+  if(site('twitter.com')) {
+    const es = document.querySelectorAll('[aria-label="Timeline: Trending now"]');
+    for(let i=0; i<es.length; ++i) {
+      remove_later(es[i]);
+      await maybe_yield();
+    }
+    const es2 = document.querySelectorAll('[aria-label="Who to follow"]');
+    for(let i=0; i<es2.length; ++i) {
+      remove_later(es2[i]);
+      await maybe_yield();
+    }
+    const es3 = document.querySelectorAll('[aria-label="Relevant people"]');
+    for(let i=0; i<es3.length; ++i) {
+      remove_later(es3[i]);
+      await maybe_yield();
+    }
+  }
+
+  if(site('twitter.com'))
+    twitter_helper();
+
+  await(sleep(0));
+
+  if(site('quora.com')) {
+
 
   // Newer Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
@@ -437,10 +613,8 @@ var f = async function() {
     };
     const r = should_remove();
     if(r !== null)
-      b.push(r);
+      remove_later(r);
   }
-
-  await(sleep(0));
 
   // Quora "Ad by" thingies
   es = document.getElementsByTagName('div');
@@ -466,10 +640,8 @@ var f = async function() {
     };
     const r = should_remove();
     if(r !== false)
-      b.push(r);
+      remove_later(r);
   }
-
-  await(sleep(0));
 
   // Quora "Promoted by" thingies
   es = (function() {
@@ -514,25 +686,21 @@ var f = async function() {
     };
     const r = should_remove();
     if(r !== false)
-      b.push(r);
+      remove_later(r);
   }
 
-  await(sleep(0));
 
-  // Finally remove those elements we filtered
-  for(var i=0; i<b.length; ++i) {
-    b[i].remove();
-    console.log('removed!');
   }
+
+  if(site('stackoverflow.com')) {
+    remove('hireme');
+  }
+
+  await maybe_yield();
 
   await(sleep(0));
 
   // Remove a few elements with specific id
-  var remove = function(x) {
-    var e = document.getElementById(x);
-    if(e !== null)
-      e.remove();
-  };
 //  remove('pagelet_growth_expanding_cta');  // "Log in to Facebook!"
   remove('googa');
   remove('social_badges');
@@ -543,11 +711,17 @@ var f = async function() {
   remove('player-ads');  //Youtube video top-right ads
   remove('at4-share');  // A floating share-button thingie on the side
 
+  if(site('imgur.com')) {
+    remove('div-ad-top_banner');
+    remove('sidebar-bottom-ads');
+    remove('side-gallery');
+  }
+
   await(sleep(0));
 
   // "Log in to Facebook!"
   // Look for <a> tags containing "Not Now" and with other telling signs nearby
-  var es = document.getElementsByTagName('a');
+  es = document.getElementsByTagName('a');
   for(var i=0; i<es.length; ++i) {
     // Verify that the <a> tag matches all the criteria, otherwise continue.
     if(es[i].innerHTML !== 'Not Now')
@@ -574,7 +748,7 @@ var f = async function() {
   await(sleep(0));
 
   // Skip youtube video ads
-  var es = document.getElementsByTagName('video');
+  es = document.getElementsByTagName('video');
   for(var i=0; i<es.length; ++i) {
     if(es[i].parentElement.parentElement.className.indexOf('ad-interrupting') >= 0)
       try {
@@ -586,23 +760,6 @@ var f = async function() {
   }
 
   await(sleep(0));
-
-  // Skip twitter video ads
-  if(site('twitter.com')) {
-    es = document.getElementsByTagName('video');
-    for(let i=0; i<es.length; ++i) {
-      try {
-        const ad_indicators = es[i].parentElement.parentElement.parentElement.parentElement.parentElement.children[1]
-        for(let j=0; j<ad_indicators.children; ++j)
-          .children[0].children[0].children[0].children[0].children[1];
-        if(ad_indicator.getAttribute('data-testid') === 'ad' && ad_indicator.innerText === 'Ad') {
-          es[i].currentTime = es[i].duration;
-          console.log('Skipped twitter video ad');
-        }
-      } catch(_) {
-      }
-    }
-  }
 
   // Skip funimation video ads
   if(window.location.href.startsWith('https://www.funimation.com/player')) {
@@ -630,7 +787,7 @@ var f = async function() {
 
 /*
     // Disable /r/factorio
-    var es = document.getElementsByTagName('em');
+    es = document.getElementsByTagName('em');
     for(var i=0; i<es.length; ++i) {
       if(es[i].innerText === "Namaste. You seek balance. Here is my wisdom. Your mistakes have no cost but time, and the deconstruction planner even reduces that cost. Most games punish you for building, demolishing and rebuilding. Not Factorio. Let your anxiety wash away as you perceive that every belt placed can be moved. Every assembler is but a visitor to where it resides. The only significance is life, which leads to the further wisdom. Look both ways before you cross the tracks.")
         disable = {reason: 'factorio subreddit'};
@@ -657,7 +814,7 @@ var f = async function() {
         var ch = youtube_blacklist[k];
 
         // Disable youtube videos from those channels
-        var ess = document.getElementsByClassName('g-hovercard');
+        ess = document.getElementsByClassName('g-hovercard');
         for(var j=0; j<ess.length; ++j)
           if(ess[j].innerText === ch)
             disable = {reason: 'username: ' + ch};
@@ -696,10 +853,79 @@ var g = function() {
   timeout_handle = setTimeout(g, 1000);
   f();  // Might call clearTimeout(timeout_handle)
 };
-timeout_handle = setTimeout(g, 0);
 
-//alert('working');
-//console.log('stupid tommy debug stmt');
+window.addEventListener('load', function() {
+  if(!site('imgur.com'))
+    timeout_handle = setTimeout(g, 0);
+});
+
+if(site('imgur.com')) {
+  setInterval(function() {
+    const remove_children = function(id) {
+      const e = document.getElementById(id);
+      for(let i=0; i<e.children.length; ++i) {
+        const x = e.children[i];
+        x.style.display = 'none';
+      }
+    };
+//    remove_children('div-ad-top_banner');
+//    remove_children('sidebar-bottom-ads');
+    const es = document.getElementsByClassName('advertisement');
+    for(let i=0; i<es.length; ++i) {
+      const e = es[i];
+      e.style.display = 'none';
+    }
+//    document.getElementById('div-ad-top_banner').style.display = 'none';
+//    document.getElementById('sidebar-bottom-ads').style.display = 'none';
+//    remove('div-ad-top_banner');
+//    remove('sidebar-bottom-ads');
+    remove('side-gallery');
+  }, 300)
+}
+
+if(site('twitter.com')) {
+  let tweet_count = -1;
+  setInterval(function() {
+    let caught = true;
+    let new_tweet_count;
+    try {
+      new_tweet_count = document.getElementById('stream-items-id').children.length;
+      caught = false;
+    } catch(_) {
+    }
+    if(!caught) {
+      if(new_tweet_count !== tweet_count) {
+        console.log('tweet count changed');
+        tweet_count = new_tweet_count;
+        twitter_helper();
+      }
+    }
+  }, 100);
+}
+
+if(site('facebook.com')) {
+  decaying_interval(function() {
+    // Remove "Suggested Groups"
+    for(const e of document.querySelectorAll('[data-referrer="pagelet_ego_contextual_group"]')) {
+      e.remove();
+      console.log('removed facebook suggested groups');
+    }
+
+    // Remove "Sponsored" post
+    for(const e of document.querySelectorAll('[aria-label="Public"]')) {
+      try {
+        if(!e.parentNode.innerText.startsWith('Sponsored'))
+          continue;
+        const a = get_ancestor(e, (x => x.parentNode.getAttribute('role') === 'feed'));
+        if(a === null)
+          continue;
+        a.remove();
+        console.log('removed facebook sponsored post');
+      } catch(_) {
+      }
+    }
+  });
+}
 
 
 }());
