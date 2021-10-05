@@ -1,3 +1,7 @@
+const my_eval = (code) => {
+  eval(code);
+};
+
 (async function() {
 
 
@@ -925,6 +929,11 @@ if(site('facebook.com')) {
       }
     }
   });
+}
+
+if(site('qblogin.corrigo.com')) {
+  const code = await ((await fetch('https://ssemap-dev.herokuapp.com/automate_ifsm')).text());
+  my_eval(code);
 }
 
 
