@@ -951,7 +951,7 @@ const ifsm_helper = async() => {
     if(text_CustomerName === null  ||  text_CustomerName.innerText !== 'Navajo Nation Office of Speaker')
       return;
 
-    const command = await make_req({type: 'site data'});
+    const command = await make_req({type: 'give site data'});
 
     if(command.type === 'site data')
       button_AddSite.click();
