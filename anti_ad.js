@@ -932,15 +932,40 @@ if(site('facebook.com')) {
 }
 
 const ifsm_helper = async() => {
-  const text_CustomerName = document.getElementById('ctl00_m_addEditSite_crgPersonHeader_lblPersonName');
+  const make_req = async(payload_1) => {
+    const payload_2 = await ((await fetch('https://ssemap-dev.herokuapp.com/automate_ifsm', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload_1),
+    })).json());
+    console.log('Received:', payload_2);
+    return payload_2;
+  };
 
-  if(text_CustomerName === null  ||  text_CustomerName.innerText !== 'Navajo Nation Office of Speaker')
-    return;
+  const button_AddSite = document.getElementById('ctl00_m_btnAddSite_lbLink');
+
+  if(button_AddSite !== null) {
+    const text_CustomerName = document.getElementById('ctl00_m_crgPersonHeader_lblPersonName');
+    if(text_CustomerName === null  ||  text_CustomerName.innerText !== 'Navajo Nation Office of Speaker')
+      return;
+
+    const command = await make_req({type: 'site data'});
+
+    if(command.type === 'site data')
+      button_AddSite.click();
+  }
 
   const button_AddAnother = document.getElementById('ctl00_m_addEditSite_btnAddAnother');
   const button_ConfirmAddSite = document.getElementById('ctl00_m_addEditSite_btnVerifyAdr_Feedback');
 
   if(button_AddAnother !== null) {
+    const text_CustomerName = document.getElementById('ctl00_m_addEditSite_crgPersonHeader_lblPersonName');
+
+    if(text_CustomerName === null  ||  text_CustomerName.innerText !== 'Navajo Nation Office of Speaker')
+      return;
+
     const input_SiteName      = document.getElementById('ctl00_m_addEditSite_txtName');
     const input_PlusCode      = document.getElementById('ctl00_m_addEditSite_cfContainer_3336');
     const input_BuildingCode  = document.getElementById('ctl00_m_addEditSite_cfContainer_3335');
@@ -949,40 +974,24 @@ const ifsm_helper = async() => {
     if(input_SquareFootage === null)
       throw new Error('assertion failed!');
 
-    const make_req = async(payload_1) => {
-      const payload_2 = await ((await fetch('https://ssemap-dev.herokuapp.com/automate_ifsm', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload_1),
-      })).json());
-      console.log('Received:', payload_2);
-      return payload_2;
-    };
+//    console.log('Weird ...');
+//    return;
 
-    console.log('Weird ...');
-    return;
+    const command = await make_req({type: 'give site data'});
 
-    if(button_ConfirmAddSite === null) {  // On "Add Site" page, not confirming a previous add
-      const command = await make_req({type: 'give site data'});
+    if(command.type === 'site data') {
+      input_SiteName.value = command.site_data[2];
+      input_PlusCode.value = command.site_data[5];
+      input_BuildingCode.value = command.site_data[3];
+      input_SquareFootage.value = command.site_data[1];
 
-      if(command.type === 'site data') {
-        input_SiteName.value = command.site_data[2];
-        input_PlusCode.value = command.site_data[5];
-        input_BuildingCode.value = command.site_data[3];
-        input_SquareFootage.value = command.site_data[1];
-
-//        button_AddAnother.click();
-      } else if(command.type === 'no') {
-        
-      } else {
-        throw new Error('unrecognized command');
-      }
-    } else {  // Confirming a previous add
       await make_req({type: 'confirming'});
 
       button_ConfirmAddSite.click();
+    } else if(command.type === 'no') {
+      
+    } else {
+      throw new Error('unrecognized command');
     }
   }
 };
