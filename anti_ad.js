@@ -932,8 +932,46 @@ if(site('facebook.com')) {
 }
 
 if(site('qblogin.corrigo.com')) {
-  const code = await ((await fetch('https://ssemap-dev.herokuapp.com/automate_ifsm')).text());
-  my_eval(code);
+  const button_AddAnother = document.getElementById('ctl00_m_addEditSite_btnAddAnother');
+
+  if(button_AddAnother !== null) {
+    const input_SiteName      = document.getElementById('ctl00_m_addEditSite_txtName');
+    const input_PlusCode      = document.getElementById('ctl00_m_addEditSite_cfContainer_3336');
+    const input_BuildingCode  = document.getElementById('ctl00_m_addEditSite_cfContainer_3335');
+    const input_SquareFootage = document.getElementById('ctl00_m_addEditSite_cfContainer_3334');
+
+    if(input_SquareFootage === null)
+      throw new Error('assertion failed!');
+
+    const make_req = async(payload_1) => {
+      const payload_2 = await ((await fetch('https://ssemap-dev.herokuapp.com/automate_ifsm', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload_1),
+      })).json());
+      console.log('Received:', payload_2);
+      return payload_2;
+    };
+
+    const command = await make_req({type: 'give site data'});
+
+    if(command.type === 'site data') {
+      input_SiteName.value = command.site_data[2];
+      input_PlusCode.value = command.site_data[5];
+      input_BuildingCode.value = command.site_data[3];
+      input_SquareFootage.value = command.site_data[1];
+
+      await make_req({type: 'clicking now'});
+
+      button_AddAnother.click();
+    } else if(command.type === 'no') {
+      
+    } else {
+      throw new Error('unrecognized command');
+    }
+  }
 }
 
 
