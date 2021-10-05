@@ -931,8 +931,14 @@ if(site('facebook.com')) {
   });
 }
 
-if(site('qblogin.corrigo.com')) {
+const ifsm_helper = async() => {
+  const text_CustomerName = document.getElementById('ctl00_m_addEditSite_crgPersonHeader_lblPersonName');
+
+  if(text_CustomerName === null  ||  text_CustomerName.innerText !== 'Navajo Nation Office of Speaker')
+    return;
+
   const button_AddAnother = document.getElementById('ctl00_m_addEditSite_btnAddAnother');
+  const button_ConfirmAddSite = document.getElementById('ctl00_m_addEditSite_btnVerifyAdr_Feedback');
 
   if(button_AddAnother !== null) {
     const input_SiteName      = document.getElementById('ctl00_m_addEditSite_txtName');
@@ -955,24 +961,34 @@ if(site('qblogin.corrigo.com')) {
       return payload_2;
     };
 
-    const command = await make_req({type: 'give site data'});
+    console.log('Weird ...');
+    return;
 
-    if(command.type === 'site data') {
-      input_SiteName.value = command.site_data[2];
-      input_PlusCode.value = command.site_data[5];
-      input_BuildingCode.value = command.site_data[3];
-      input_SquareFootage.value = command.site_data[1];
+    if(button_ConfirmAddSite === null) {  // On "Add Site" page, not confirming a previous add
+      const command = await make_req({type: 'give site data'});
 
-      await make_req({type: 'clicking now'});
+      if(command.type === 'site data') {
+        input_SiteName.value = command.site_data[2];
+        input_PlusCode.value = command.site_data[5];
+        input_BuildingCode.value = command.site_data[3];
+        input_SquareFootage.value = command.site_data[1];
 
-      button_AddAnother.click();
-    } else if(command.type === 'no') {
-      
-    } else {
-      throw new Error('unrecognized command');
+//        button_AddAnother.click();
+      } else if(command.type === 'no') {
+        
+      } else {
+        throw new Error('unrecognized command');
+      }
+    } else {  // Confirming a previous add
+      await make_req({type: 'confirming'});
+
+      button_ConfirmAddSite.click();
     }
   }
-}
+};
+
+if(site('qblogin.corrigo.com'))
+  await ifsm_helper();
 
 
 }());
