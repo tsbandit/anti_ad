@@ -596,98 +596,98 @@ const f = async function() {
   if(site('quora.com')) {
 
 
-  // Newer Quora "Ad by" thingies
-  es = document.getElementsByTagName('div');
-  for(let i=0; i<es.length; ++i) {
-    const should_remove = function() {
-      try {
-        if(!es[i].innerText.startsWith('Ad by '))
+    // Newer Quora "Ad by" thingies
+    es = document.getElementsByTagName('div');
+    for(let i=0; i<es.length; ++i) {
+      const should_remove = function() {
+        try {
+          if(!es[i].innerText.startsWith('Ad by '))
+            return null;
+
+          return get_ancestor(es[i], (x) => {
+            return x.parentNode.classList.contains('question_main_col');
+          });
+        } catch(e) {
           return null;
+        }
+      };
+      const r = should_remove();
+      if(r !== null)
+        remove_later(r);
+    }
 
-        return get_ancestor(es[i], (x) => {
-          return x.parentNode.classList.contains('question_main_col');
-        });
-      } catch(e) {
-        return null;
-      }
-    };
-    const r = should_remove();
-    if(r !== null)
-      remove_later(r);
-  }
+    // Quora "Ad by" thingies
+    es = document.getElementsByTagName('div');
+    for(let i=0; i<es.length; ++i) {
+      const should_remove = function() {
+        try {
+          if(!es[i].innerText.startsWith('Ad by '))
+            return false;
 
-  // Quora "Ad by" thingies
-  es = document.getElementsByTagName('div');
-  for(let i=0; i<es.length; ++i) {
-    const should_remove = function() {
-      try {
-        if(!es[i].innerText.startsWith('Ad by '))
+          let node = es[i];
+          for(let j=0; j<100; ++j)
+            if(node.classList.contains('PromptsList'))
+              break;
+            else
+              node = node.parentNode;
+          if(j >= 100)
+            return false;
+
+          return node.parentNode;
+        } catch(e) {
           return false;
+        }
+      };
+      const r = should_remove();
+      if(r !== false)
+        remove_later(r);
+    }
 
-        let node = es[i];
-        for(let j=0; j<100; ++j)
-          if(node.classList.contains('PromptsList'))
-            break;
-          else
-            node = node.parentNode;
-        if(j >= 100)
-          return false;
-
-        return node.parentNode;
-      } catch(e) {
-        return false;
-      }
-    };
-    const r = should_remove();
-    if(r !== false)
-      remove_later(r);
-  }
-
-  // Quora "Promoted by" thingies
-  es = (function() {
-    const a1 = document.getElementsByTagName('div');
-    const a2 = document.getElementsByTagName('p');
-    const result = [];
-    for(let i=0; i<a1.length; ++i)
-      result.push(a1[i]);
-    for(let i=0; i<a2.length; ++i)
-      result.push(a2[i]);
-    return result;
-  }());
-  for(let i=0; i<es.length; ++i) {
-    const should_remove = function() {
-      try {
-        if(
-              !es[i].innerText.startsWith('Promoted by ')
-            &&
-              es[i].innerText !== 'By Quora for Business'
-            &&
-              !es[i].innerText.startsWith('Sponsored by ')
-            )
-          return false;
-
-        let node = es[i];
-        for(let j=0; j<100; ++j)
+    // Quora "Promoted by" thingies
+    es = (function() {
+      const a1 = document.getElementsByTagName('div');
+      const a2 = document.getElementsByTagName('p');
+      const result = [];
+      for(let i=0; i<a1.length; ++i)
+        result.push(a1[i]);
+      for(let i=0; i<a2.length; ++i)
+        result.push(a2[i]);
+      return result;
+    }());
+    for(let i=0; i<es.length; ++i) {
+      const should_remove = function() {
+        try {
           if(
-                node.parentNode.classList.contains('paged_list_wrapper')
-              ||
-                node.parentNode.classList.contains('pagelist_item')
+                !es[i].innerText.startsWith('Promoted by ')
+              &&
+                es[i].innerText !== 'By Quora for Business'
+              &&
+                !es[i].innerText.startsWith('Sponsored by ')
               )
-            break;
-          else
-            node = node.parentNode;
-        if(j >= 100)
-          return false;
+            return false;
 
-        return node;
-      } catch(e) {
-        return false;
-      }
-    };
-    const r = should_remove();
-    if(r !== false)
-      remove_later(r);
-  }
+          let node = es[i];
+          for(let j=0; j<100; ++j)
+            if(
+                  node.parentNode.classList.contains('paged_list_wrapper')
+                ||
+                  node.parentNode.classList.contains('pagelist_item')
+                )
+              break;
+            else
+              node = node.parentNode;
+          if(j >= 100)
+            return false;
+
+          return node;
+        } catch(e) {
+          return false;
+        }
+      };
+      const r = should_remove();
+      if(r !== false)
+        remove_later(r);
+    }
 
 
   }
