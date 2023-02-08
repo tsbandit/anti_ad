@@ -247,6 +247,10 @@ const f = async function() {
     nuke_class('ethical-content');  // readthedocs.io
     nuke_class('ytp-endscreen-content');  // youtube related videos
 
+    if(site('quora.com')) {
+      nuke_class('dom_annotate_ad_promoted_answer');  // Quora "Promoted" thingies
+    }
+
     if(!site('imgur.com')) {  // Doesn't work on imgur
       nuke_class('advertisement');
     }
@@ -687,6 +691,46 @@ const f = async function() {
       const r = should_remove();
       if(r !== false)
         remove_later(r);
+    }
+
+    const mainContent = document.getElementById('mainContent');
+
+    // Get rid of ads that appear below an answer after clicking to expand the answer.
+    for(const quora_item of mainContent.children[1].children) {
+      try {
+        const maybe_an_ad = quora_item.children[0].children[1];
+        if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
+          remove_later(maybe_an_ad);
+        }
+      } catch(e) {
+      }
+
+      try {
+        const maybe_an_ad = quora_item.children[1];
+        if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
+          remove_later(maybe_an_ad);
+        }
+      } catch(e) {
+      }
+    }
+
+    // Get rid of an ad that appears just below the question.
+    try {
+      const maybe_an_ad = mainContent.children[1].children[0];
+      if(maybe_an_ad.innerText.startsWith('Ad by ')) {
+        remove_later(maybe_an_ad);
+      }
+    } catch(e) {
+    }
+
+    // Get rid of "Sponsored by " posts that occur in the main stream of answers.
+    for(const maybe_an_ad of mainContent.children[1].children) {
+      try {
+        if(maybe_an_ad.innerText.startsWith('Sponsored by ')) {
+          remove_later(maybe_an_ad);
+        }
+      } catch(e) {
+      }
     }
 
 
