@@ -256,24 +256,6 @@ const f = async function() {
     }
   }
 
-  // Remove youtube related videos in sidebar
-  es = document.getElementsByTagName('ytd-compact-video-renderer');
-  for(let i=0; i<es.length; ++i) {
-    remove_later(es[i]);
-    await maybe_yield();
-  }
-
-  await(sleep(0));
-
-  // Remove youtube "related ad videos"
-  es = document.getElementsByClassName('ad-badge-byline');
-  for(var i=0; i<es.length; ++i) {
-    remove_later(es[i].parentNode.parentNode);
-    await maybe_yield();
-  }
-
-  await(sleep(0));
-
   // Completely destroy webpages built by infolinks
   es = document.getElementsByTagName('iframe');
   for(var i=0; i<es.length; ++i) {
@@ -510,20 +492,6 @@ const f = async function() {
 
   await(sleep(0));
 
-  // Remove some sidebar ads in youtube
-  es = document.getElementsByTagName('ytd-compact-promoted-video-renderer');
-  for(var i=0; i<es.length; ++i)
-    remove_later(es[i]);
-
-  await(sleep(0));
-
-  // Remove some newer upper-right ads in youtube
-  es = document.getElementsByTagName('ytd-movie-offer-module-renderer');
-  for(var i=0; i<es.length; ++i)
-    remove_later(es[i]);
-
-  await(sleep(0));
-
   // Remove Google Doodle
   if(   window.location.host.endsWith('google.com')
       &&
@@ -752,8 +720,12 @@ const f = async function() {
   remove('google_companion_ad_div');
   remove('ad');
   remove('pubmatic_parent');
-  remove('player-ads');  //Youtube video top-right ads
   remove('at4-share');  // A floating share-button thingie on the side
+
+  if(site('youtube.com')) {
+    //remove('player-ads');  //Youtube video top-right ads
+    remove('items');  // entire sidebar
+  }
 
   if(site('imgur.com')) {
     remove('div-ad-top_banner');
