@@ -439,6 +439,15 @@ const f = async function() {
 
   await(sleep(0));
 
+  // 2023-04-18: Remove reddit promoted post
+  if(site('reddit.com')) {
+    for(const elem of document.querySelectorAll('.promotedlink')) {
+      remove_later(elem);
+    }
+  }
+
+  await(sleep(0));
+
   // Find <iframe> elements that are siblings of <div> with
   // id matching "google_ads"
   es = document.getElementsByTagName("div");
