@@ -6,9 +6,10 @@ const Global = window.Global = window.Global || {};
 const {sleep} = Global.util;
 
 Global.anti_addiction = async() => {
-  // Determine whether to disable this webpage
-  {
-    var disable = false;
+  let disable = null;
+
+  const determine_whether_to_disable_this_webpage = () => {
+    disable = false;
 
 /*
     // Disable /r/factorio
@@ -49,28 +50,36 @@ Global.anti_addiction = async() => {
           disable = {reason: 'url contains: ' + ch};
       }
     }
+  };
 
-    // Only disable at certain times of day
+  const only_disable_at_certain_times_of_day = () => {
     const time = new Date().getHours();
     if(time >= 12  &&  time < 22)
       disable = false;
-  }
-
-  disable = false;
-
-  await(sleep(0));
+  };
 
   // Disable if necessary
-  if(disable) {
-    console.log('disabling because: ' + disable.reason);
-    clearTimeout(timeout_handle);
-    if(document.head !== null) {
-      document.head.remove();
+  const disable_if_necessary = () => {
+    if(disable) {
+      console.log('disabling because: ' + disable.reason);
+      clearTimeout(timeout_handle);
+      if(document.head !== null) {
+        document.head.remove();
+      }
+      document.body.remove();
+      document.children[0].appendChild(document.createElement('body'));
+      document.body.appendChild(document.createTextNode('Tommy has decided that this page cannot be viewed.'));
     }
-    document.body.remove();
-    document.children[0].appendChild(document.createElement('body'));
-    document.body.appendChild(document.createTextNode('Tommy has decided that this page cannot be viewed.'));
-  }
+  };
+
+  const main = async() => {
+    determine_whether_to_disable_this_webpage();
+    only_disable_at_certain_times_of_day();
+    await(sleep(0));
+    disable_if_necessary();
+  };
+
+  await main();
 };
 
 
