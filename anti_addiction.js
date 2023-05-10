@@ -55,6 +55,12 @@ const anti_addiction = async() => {
     }
   };
 
+  const disable_ally = () => {
+    if(window.location.hostname.indexOf('ally.com') >= 0) {
+      disable({reason: 'ally.com is banned right now'});
+    }
+  };
+
   const disable_vanguard = () => {
     if(window.location.hostname.indexOf('vanguard.com') >= 0) {
       disable({reason: 'vanguard is banned right now'});
@@ -68,6 +74,7 @@ const anti_addiction = async() => {
   };
 
   const determine_whether_to_disable_this_webpage = () => {
+    disable_ally();
     disable_vanguard();
     disable_finance_yahoo();
   };
