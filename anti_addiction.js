@@ -6,8 +6,9 @@
 const Global = window.Global = window.Global || {};
 
 const {sleep, make_state} = Global.util;
+const {get_timeout_handle} = Global.master_loop;
 
-Global.anti_addiction = async() => {
+const anti_addiction = async() => {
   const [get_is_disabled, set_is_disabled] = make_state(false);
   const disable = set_is_disabled;
 
@@ -86,7 +87,7 @@ Global.anti_addiction = async() => {
 
   const enact_the_disabling = (reason) => {
     console.log('disabling because: ' + reason);
-    clearTimeout(timeout_handle);
+    clearTimeout(get_timeout_handle());
     if(document.head !== null) {
       document.head.remove();
     }
@@ -111,6 +112,8 @@ Global.anti_addiction = async() => {
 
   await main();
 };
+
+Global.anti_addiction = anti_addiction;
 
 
 })();

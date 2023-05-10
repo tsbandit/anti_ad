@@ -17,6 +17,7 @@
       "all_frames": true,
       "js": [
         "util.js",
+        "master_loop.js",
         "anti_addiction.js",
         "anti_ad.js"
       ]

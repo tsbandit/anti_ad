@@ -1,11 +1,14 @@
 (async function() {
 
 
+'use strict';
+
 console.log(window.location.href);
 
 const Global = window.Global = window.Global || {};
 
 const {sleep} = Global.util;
+const {set_timeout_handle} = Global.master_loop;
 
 // Refer to https://stackoverflow.com/questions/21751377/foolproof-way-to-detect-if-this-page-is-inside-a-cross-domain-iframe
 const is_cross_origin_iframe = function() {
@@ -814,13 +817,13 @@ const f = async function() {
 
 // Call f() every once in a while
 var g = function() {
-  timeout_handle = setTimeout(g, 1000);
+  set_timeout_handle(setTimeout(g, 1000));
   f();  // Might call clearTimeout(timeout_handle)
 };
 
 window.addEventListener('load', function() {
   if(!site('imgur.com'))
-    timeout_handle = setTimeout(g, 0);
+    set_timeout_handle(setTimeout(g, 0));
 });
 
 if(site('imgur.com')) {
