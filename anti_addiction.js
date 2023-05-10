@@ -14,7 +14,7 @@ Global.anti_addiction = async() => {
   const disable = set_is_disabled;
 
   const disable_factorio_subreddit = () => {
-    es = document.getElementsByTagName('em');
+    const es = document.getElementsByTagName('em');
     for(var i=0; i<es.length; ++i) {
       if(es[i].innerText === "Namaste. You seek balance. Here is my wisdom. Your mistakes have no cost but time, and the deconstruction planner even reduces that cost. Most games punish you for building, demolishing and rebuilding. Not Factorio. Let your anxiety wash away as you perceive that every belt placed can be moved. Every assembler is but a visitor to where it resides. The only significance is life, which leads to the further wisdom. Look both ways before you cross the tracks.")
         disable({reason: 'factorio subreddit'});
@@ -42,7 +42,7 @@ Global.anti_addiction = async() => {
         var ch = youtube_blacklist[k];
 
         // Disable youtube videos from those channels
-        ess = document.getElementsByClassName('g-hovercard');
+        const ess = document.getElementsByClassName('g-hovercard');
         for(var j=0; j<ess.length; ++j)
           if(ess[j].innerText === ch)
             disable({reason: 'username: ' + ch});
