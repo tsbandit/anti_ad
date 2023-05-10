@@ -672,22 +672,25 @@ const f = async function() {
     const mainContent = document.getElementById('mainContent');
 
     // Get rid of ads that appear below an answer after clicking to expand the answer.
-    for(const quora_item of mainContent.children[1].children) {
-      try {
-        const maybe_an_ad = quora_item.children[0].children[1];
-        if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
-          remove_later(maybe_an_ad);
+    try {
+      for(const quora_item of mainContent.children[1].children) {
+        try {
+          const maybe_an_ad = quora_item.children[0].children[1];
+          if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
+            remove_later(maybe_an_ad);
+          }
+        } catch(e) {
         }
-      } catch(e) {
-      }
 
-      try {
-        const maybe_an_ad = quora_item.children[1];
-        if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
-          remove_later(maybe_an_ad);
+        try {
+          const maybe_an_ad = quora_item.children[1];
+          if(/^[^\n]*\nSponsored\n/.test(maybe_an_ad.innerText)) {
+            remove_later(maybe_an_ad);
+          }
+        } catch(e) {
         }
-      } catch(e) {
       }
+    } catch(e) {
     }
 
     // Get rid of an ad that appears just below the question.
@@ -700,13 +703,16 @@ const f = async function() {
     }
 
     // Get rid of "Sponsored by " posts that occur in the main stream of answers.
-    for(const maybe_an_ad of mainContent.children[1].children) {
-      try {
-        if(maybe_an_ad.innerText.startsWith('Sponsored by ')) {
-          remove_later(maybe_an_ad);
+    try {
+      for(const maybe_an_ad of mainContent.children[1].children) {
+        try {
+          if(maybe_an_ad.innerText.startsWith('Sponsored by ')) {
+            remove_later(maybe_an_ad);
+          }
+        } catch(e) {
         }
-      } catch(e) {
       }
+    } catch(e) {
     }
 
 
