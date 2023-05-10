@@ -26,6 +26,7 @@ Global.anti_addiction = async() => {
       disable({reason: 'ffviiremake subreddit'});
   };
 
+/*
   const disable_certain_hostnames = () => {
     if(       window.location.hostname.indexOf('twitch.tv') >= 0
           ||  window.location.hostname.indexOf('factorio.com') >= 0
@@ -33,6 +34,7 @@ Global.anti_addiction = async() => {
           )
       disable({reason: 'banned hostname'});
   };
+*/
 
   const disable_some_youtube_channels = () => {
     if(window.location.hostname.indexOf('youtube.com') >= 0) {
@@ -54,16 +56,33 @@ Global.anti_addiction = async() => {
     }
   };
 
+  const disable_vanguard = () => {
+    if(window.location.hostname.indexOf('vanguard.com') >= 0) {
+      disable({reason: 'vanguard is banned right now'});
+    }
+  };
+
+  const disable_finance_yahoo = () => {
+    if(window.location.hostname.indexOf('finance.yahoo.com') >= 0) {
+      disable({reason: 'finance.yahoo.com is banned right now'});
+    }
+  };
+
   const determine_whether_to_disable_this_webpage = () => {
-    disable_factorio_subreddit();
-    disable_ffviiremake_subreddit();
-    disable_certain_hostnames();
-    disable_some_youtube_channels();
+    disable_vanguard();
+    disable_finance_yahoo();
   };
 
   const only_disable_at_certain_times_of_day = () => {
     const time = new Date().getHours();
     if(time >= 12  &&  time < 22)
+      set_is_disabled(false);
+  };
+
+  const only_disable_on_certain_dates = () => {
+    const time = Date.now();
+    const reenablement_date = new Date('2023-05-19T00:00:00.000');
+    if(time > reenablement_date)
       set_is_disabled(false);
   };
 
@@ -81,7 +100,7 @@ Global.anti_addiction = async() => {
   const main = async() => {
     determine_whether_to_disable_this_webpage();
 
-    only_disable_at_certain_times_of_day();
+    only_disable_on_certain_dates();
 
     await sleep(0);
 
