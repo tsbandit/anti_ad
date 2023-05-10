@@ -8,8 +8,6 @@ const Global = window.Global = window.Global || {};
 const {sleep, make_state} = Global.util;
 
 Global.anti_addiction = async() => {
-  console.log('in anti_addiction()');
-
   const [get_is_disabled, set_is_disabled] = make_state(false);
   const disable = set_is_disabled;
 
