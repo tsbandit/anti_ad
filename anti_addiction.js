@@ -1,6 +1,8 @@
 (() => {
 
 
+'use strict';
+
 const Global = window.Global = window.Global || {};
 
 const {sleep, make_state} = Global.util;
@@ -11,29 +13,28 @@ Global.anti_addiction = async() => {
   const [get_is_disabled, set_is_disabled] = make_state(false);
   const disable = set_is_disabled;
 
-  const determine_whether_to_disable_this_webpage = () => {
-/*
-    // Disable /r/factorio
+  const disable_factorio_subreddit = () => {
     es = document.getElementsByTagName('em');
     for(var i=0; i<es.length; ++i) {
       if(es[i].innerText === "Namaste. You seek balance. Here is my wisdom. Your mistakes have no cost but time, and the deconstruction planner even reduces that cost. Most games punish you for building, demolishing and rebuilding. Not Factorio. Let your anxiety wash away as you perceive that every belt placed can be moved. Every assembler is but a visitor to where it resides. The only significance is life, which leads to the further wisdom. Look both ways before you cross the tracks.")
         disable({reason: 'factorio subreddit'});
     }
+  };
 
-    // Disable /r/ffviiremake
+  const disable_ffviiremake_subreddit = () => {
     if(window.getComputedStyle(document.body, false).backgroundImage === 'url("https://a.thumbs.redditmedia.com/mgKSOsATIw9wFPOwGjD3cR9IyN2zD7ZJZ9iO3ooT2D4.png")')
       disable({reason: 'ffviiremake subreddit'});
-*/
+  };
 
-    // Disable certain hostnames
-    if(false
-        ||  window.location.hostname.indexOf('twitch.tv') >= 0
-        ||  window.location.hostname.indexOf('factorio.com') >= 0
-        ||  window.location.hostname.indexOf('reddit.com') >= 0
-        )
+  const disable_certain_hostnames = () => {
+    if(       window.location.hostname.indexOf('twitch.tv') >= 0
+          ||  window.location.hostname.indexOf('factorio.com') >= 0
+          ||  window.location.hostname.indexOf('reddit.com') >= 0
+          )
       disable({reason: 'banned hostname'});
+  };
 
-    // Disable some youtube channels
+  const disable_some_youtube_channels = () => {
     if(window.location.hostname.indexOf('youtube.com') >= 0) {
       var youtube_blacklist = ['NintendoCapriSun', 'EthosLab'];
 
@@ -51,6 +52,13 @@ Global.anti_addiction = async() => {
           disable({reason: 'url contains: ' + ch});
       }
     }
+  };
+
+  const determine_whether_to_disable_this_webpage = () => {
+    disable_factorio_subreddit();
+    disable_ffviiremake_subreddit();
+    disable_certain_hostnames();
+    disable_some_youtube_channels();
   };
 
   const only_disable_at_certain_times_of_day = () => {
