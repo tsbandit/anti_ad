@@ -15,7 +15,10 @@
     {
       "matches": ["<all_urls>"],
       "all_frames": true,
-      "js": ["anti_ad.js"]
+      "js": [
+        "anti_addiction.js",
+        "anti_ad.js"
+      ]
     }
   ]
 
