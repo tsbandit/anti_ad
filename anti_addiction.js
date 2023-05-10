@@ -3,6 +3,8 @@
 
 const Global = window.Global = window.Global || {};
 
+const {sleep} = Global.util;
+
 Global.anti_addiction = async() => {
   // Determine whether to disable this webpage
   {

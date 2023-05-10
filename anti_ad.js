@@ -5,6 +5,8 @@ console.log(window.location.href);
 
 const Global = window.Global = window.Global || {};
 
+const {sleep} = Global.util;
+
 // Refer to https://stackoverflow.com/questions/21751377/foolproof-way-to-detect-if-this-page-is-inside-a-cross-domain-iframe
 const is_cross_origin_iframe = function() {
   try {
@@ -32,11 +34,6 @@ if(is_cross_origin_iframe()) {
   };
   document.body.appendChild(iframe_cover);
 }
-
-const sleep = (n) => new Promise((resolve, reject) => {
-  setTimeout(resolve, n);
-});
-
 
 var is_fixed = function(el) {
   for(var i=0; i<10000; ++i) {
