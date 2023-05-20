@@ -87,7 +87,7 @@ const anti_addiction = async() => {
 
   const only_disable_on_certain_dates = () => {
     const time = Date.now();
-    const reenablement_date = new Date('2023-05-19T00:00:00.000');
+    const reenablement_date = new Date('2023-06-02T00:00:00.000');
     if(time > reenablement_date)
       set_is_disabled(false);
   };
