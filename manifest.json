@@ -11,6 +11,15 @@
 //    "default_popup": "popup.html"
 //  },
 
+  "background": {
+    "scripts": [
+      "util.js",
+      "test_notifications.js",
+      "background.js"
+    ],
+    "persistent": false
+  },
+
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
@@ -22,11 +31,13 @@
         "anti_ad.js"
       ]
     }
-  ]
+  ],
 
-//  "permissions": [
+  "permissions": [
+//    "https://ajax.googleapis.com/",
 //    "<all_urls>",
-//    "tabs",
-//    "https://ajax.googleapis.com/"
-//  ]
+    "tabs",
+    "storage",
+    "notifications"
+  ]
 }
