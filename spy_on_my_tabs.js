@@ -14,7 +14,7 @@ const spy_on_my_tabs = async() => {
   console.log('tommy 2', x);
 
   const test_string = await (await fetch('http://localhost:6001')).text();
-  console.log(test_string);
+  console.log({test_string});
 };
 
 Global.spy_on_my_tabs = {spy_on_my_tabs};
