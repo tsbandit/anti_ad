@@ -120,7 +120,7 @@ const anti_addiction = async() => {
   await main();
 };
 
-Global.anti_addiction = anti_addiction;
+Global.anti_addiction = {anti_addiction};
 
 
 })();

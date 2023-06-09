@@ -1,14 +1,13 @@
-(async function() {
-
-
+(() => {
 'use strict';
-
-console.log(window.location.href);
-
 const Global = window.Global = window.Global || {};
-
 const {sleep} = Global.util;
 const {set_timeout_handle} = Global.master_loop;
+const {anti_addiction} = Global.anti_addiction;
+const anti_ad = async function() {
+
+
+console.log('anti_ad.js', window.location.href);
 
 // Refer to https://stackoverflow.com/questions/21751377/foolproof-way-to-detect-if-this-page-is-inside-a-cross-domain-iframe
 const is_cross_origin_iframe = function() {
@@ -812,7 +811,7 @@ const f = async function() {
     })();
   };
 
-  await Global.anti_addiction();
+  await anti_addiction();
 };
 
 // Call f() every once in a while
@@ -895,4 +894,6 @@ if(site('facebook.com')) {
 }
 
 
-}());
+};
+Global.anti_ad = {anti_ad};
+})();

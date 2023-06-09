@@ -15,7 +15,7 @@
     "scripts": [
       "util.js",
       "test_notifications.js",
-      "background.js"
+      "main_background_script.js"
     ],
     "persistent": false
   },
@@ -28,7 +28,8 @@
         "util.js",
         "master_loop.js",
         "anti_addiction.js",
-        "anti_ad.js"
+        "anti_ad.js",
+        "main_content_script.js"
       ]
     }
   ],
