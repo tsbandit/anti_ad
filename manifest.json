@@ -15,6 +15,7 @@
     "scripts": [
       "util.js",
       "test_notifications.js",
+      "spy_on_my_tabs.js",
       "main_background_script.js"
     ],
     "persistent": false
