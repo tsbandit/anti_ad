@@ -59,7 +59,7 @@ const possibly_send_notification = async() => {
   const now = Date.now();
   const twenty_minutes = 20 * 60 * 1000;
   const one_minute = 60 * 1000;
-  if(now > last_notification_time + one_minute) {
+  if(now > last_notification_time + twenty_minutes) {
     new Audio('notification.ogg').play();
     console.trace('alert!', new Date().toString());
     await create_notification({unique_id: '16tXkuE25GlySnO1HCfj', message: 'alert!'});
@@ -69,7 +69,13 @@ const possibly_send_notification = async() => {
   }
 };
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set};
+const escalate = (error) => {
+  console.log('escalate(): current timestamp', new Date().toString());
+  console.error(error);
+  possibly_send_notification();
+};
+
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate};
 
 
 })();
