@@ -9,6 +9,14 @@ const {sleep, escalate} = Global.util;
 
 const get_tabs = () => (new Promise((resolve) => {chrome.tabs.query({}, resolve);}));
 
+const reformat_tabs = (tabs) => {
+  const result = {};
+  for(const tab of tabs) {
+    result[tab.id] = tab;
+  }
+  return result;
+};
+
 const call_api = async(payload) => {
   const response = await (await fetch('http://localhost:6002/api', {
     method: 'post',
@@ -36,7 +44,7 @@ const spy_on_my_tabs = async() => {
         const response = await call_api({
           type: 'save browser tabs',
           api_key: window.api_key,
-          browser_tabs: await get_tabs()
+          browser_tabs: reformat_tabs(await get_tabs()),
         });
       }
     } catch(e) {
