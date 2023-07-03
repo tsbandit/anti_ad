@@ -75,7 +75,9 @@ const escalate = (error) => {
   possibly_send_notification();
 };
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate};
+const onload_promise = new Promise((resolve) => (window.addEventListener('load', resolve)));
+
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise};
 
 
 })();

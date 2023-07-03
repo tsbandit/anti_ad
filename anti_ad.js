@@ -1,7 +1,7 @@
 (() => {
 'use strict';
 const Global = window.Global = window.Global || {};
-const {sleep} = Global.util;
+const {sleep, onload_promise} = Global.util;
 const {set_timeout_handle} = Global.master_loop;
 const {anti_addiction} = Global.anti_addiction;
 const anti_ad = async function() {
@@ -820,10 +820,10 @@ var g = function() {
   f();  // Might call clearTimeout(timeout_handle)
 };
 
-window.addEventListener('load', function() {
-  if(!site('imgur.com'))
-    set_timeout_handle(setTimeout(g, 0));
-});
+// Possibly launch the main loop:
+if(!site('imgur.com')) {
+  onload_promise.then(g);
+}
 
 if(site('imgur.com')) {
   setInterval(function() {
