@@ -9,6 +9,8 @@ const {escalate} = Global.util;
 const {anti_ad} = Global.anti_ad;
 const {spy_on_youtube} = Global.spy_on_youtube;
 
+console.log('main_content_script');
+
 const main = async() => {
   window.addEventListener("unhandledrejection", (promise_rejection_event) => {
     console.log('tommy unhandledrejection');

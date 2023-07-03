@@ -14,6 +14,8 @@
   "background": {
     "scripts": [
       "util.js",
+      "call_api.js",
+      "listen_for_stupid_api_calls.js",
       "test_notifications.js",
       "spy_on_my_tabs.js",
       "main_background_script.js"
@@ -27,6 +29,7 @@
       "all_frames": true,
       "js": [
         "util.js",
+        "call_api_stupidly.js",
         "master_loop.js",
         "anti_addiction.js",
         "anti_ad.js",
