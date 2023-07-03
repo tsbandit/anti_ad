@@ -30,6 +30,7 @@
         "master_loop.js",
         "anti_addiction.js",
         "anti_ad.js",
+        "spy_on_youtube.js",
         "main_content_script.js"
       ]
     }
