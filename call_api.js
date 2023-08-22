@@ -5,7 +5,7 @@
 
 const Global = window.Global = window.Global || {};
 
-const {storage_get, sleep} = Global.util;
+const {storage_get, storage_set, sleep} = Global.util;
 
 let api_key = undefined;
 (async() => {
