@@ -36,8 +36,13 @@ const create_notification = ({unique_id, ...options}) => {
   if(options.message === undefined)
     throw new Error('message is undefined');
 
+  const f = chrome.notifications.create;
+
+  if(f === undefined)
+    throw new Error('chrome.notifications.create not supported');
+
   return new Promise((resolve) => {
-    chrome.notifications.create(unique_id, {
+    f(unique_id, {
       type: 'basic',
       title: 'Alert',
       iconUrl: 'x.png',
@@ -69,15 +74,29 @@ const possibly_send_notification = async() => {
   }
 };
 
-const escalate = (error) => {
+const escalate = async(error) => {
   console.log('escalate(): current timestamp', new Date().toString());
   console.error(error);
-  possibly_send_notification();
+  await possibly_send_notification();
 };
 
 const onload_promise = new Promise((resolve) => (window.addEventListener('load', resolve)));
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise};
+const register_unhandled_rejection_handler = () => {
+  const handle_unhandled_rejection = (
+    async(promise_rejection_event) => {
+      try {
+        console.log('tommy unhandledrejection');
+        await escalate(promise_rejection_event.reason);
+      } catch(e) {
+        console.error('tommy already handling; ' + e.message);
+      }
+    }
+  );
+  window.addEventListener("unhandledrejection", handle_unhandled_rejection);
+};
+
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler};
 
 
 })();
