@@ -82,7 +82,7 @@ const escalate = async(error) => {
 
 const onload_promise = new Promise((resolve) => (window.addEventListener('load', resolve)));
 
-const register_unhandled_rejection_handler = () => {
+const register_unhandled_rejection_handler_background = () => {
   const handle_unhandled_rejection = (
     async(promise_rejection_event) => {
       try {
@@ -96,7 +96,21 @@ const register_unhandled_rejection_handler = () => {
   window.addEventListener("unhandledrejection", handle_unhandled_rejection);
 };
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler};
+const register_unhandled_rejection_handler_content = () => {
+  const handle_unhandled_rejection = (
+    async(promise_rejection_event) => {
+      try {
+        console.log('tommy unhandledrejection; ' + promise_rejection_event.reason);
+        await chrome.runtime.sendMessage({type: 'escalate error', error: promise_rejection_event.reason});
+      } catch(e) {
+        console.error('tommy already handling; ' + e.message);
+      }
+    }
+  );
+  window.addEventListener("unhandledrejection", handle_unhandled_rejection);
+};
+
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler_background, register_unhandled_rejection_handler_content};
 
 
 })();
