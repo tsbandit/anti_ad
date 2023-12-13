@@ -12,10 +12,11 @@ const listen_for_stupid_api_calls = async() => {
     try {
       console.log('tommy 1', request);
 
-      if(request.type !== 'call_api_stupidly')
-        return;
-
-      await call_api(request.request_object);
+      if(request.type === 'call_api_stupidly') {
+        await call_api(request.request_object);
+      } else if(request.type === 'escalate error') {
+        escalate(request.error);
+      }
     } finally {
       send_response();
     }

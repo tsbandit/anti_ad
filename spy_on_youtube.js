@@ -5,7 +5,7 @@
 
 const Global = window.Global = window.Global || {};
 
-const {storage_get, onload_promise, make_state} = Global.util;
+const {sleep, storage_get, onload_promise, make_state} = Global.util;
 const {call_api_stupidly} = Global.call_api_stupidly;
 
 const parse_url = () => {
@@ -35,7 +35,19 @@ const spy_on_youtube = async() => {
 
     await onload_promise;
 
-    const videos = document.querySelectorAll('video');
+    let videos;
+
+    while(true) {
+      videos = document.querySelectorAll('video');
+      if(videos.length === 1) {
+        break;
+      } else if(videos.length === 0) {
+        console.log('anti_ad waiting for video to render');
+      } else {
+        console.log('anti_ad is confused because there are ' + videos.length + ' videos on the page');
+      }
+      await sleep(2000);
+    }
 
     if(videos.length !== 1)
       throw new Error('unexpected condition RktzEPaEgQPeUHhmFVaT');

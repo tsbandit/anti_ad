@@ -5,17 +5,14 @@
 
 const Global = window.Global = window.Global || {};
 
-const {escalate} = Global.util;
+const {register_unhandled_rejection_handler_content, escalate} = Global.util;
 const {anti_ad} = Global.anti_ad;
 const {spy_on_youtube} = Global.spy_on_youtube;
 
 console.log('main_content_script');
 
 const main = async() => {
-  window.addEventListener("unhandledrejection", (promise_rejection_event) => {
-    console.log('tommy unhandledrejection');
-    escalate(promise_rejection_event.reason);
-  });
+  register_unhandled_rejection_handler_content();
 
   try {
     spy_on_youtube();  // Launch async thread.
