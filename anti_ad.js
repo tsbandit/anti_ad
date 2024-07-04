@@ -114,7 +114,7 @@ const remove = function(x) {
 const twitter_helper = function() {
   // Skip Twitter video ads
   if(site('twitter.com')) {
-    es = document.querySelectorAll('[data-testid="ad"]');
+    const es = document.querySelectorAll('[data-testid="ad"]');
     for(let i=0; i<es.length; ++i) {
       const ancestor = get_ancestor(es[i], (x)=>x.classList.contains('PlayableMedia-reactWrapper'));
       if(ancestor !== null) {
