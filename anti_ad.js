@@ -111,6 +111,16 @@ const remove = function(x) {
     e.remove();
 };
 
+const undisplay_selector = (selector) => {
+  const style_tag = document.createElement('style');
+  style_tag.innerText = `\
+    ${selector} {
+      visibility: hidden;
+    }
+  `;
+  document.head.appendChild(style_tag);
+};
+
 const twitter_helper = function() {
   // Skip Twitter video ads
   if(site('twitter.com')) {
@@ -740,7 +750,7 @@ const f = async function() {
 
   if(site('youtube.com')) {
     //remove('player-ads');  //Youtube video top-right ads
-    remove('items');  // entire sidebar
+    undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
   }
 
   if(site('imgur.com')) {
