@@ -12,7 +12,7 @@ Global.api_keys = {};
 const create_api_caller = ({url, storage_key}) => {
   let api_key = undefined;
 
-  // Manage API key storage:
+  // Manage API key input and storage:
   (async() => {
     while(true) {
       api_key = await storage_get(storage_key);
