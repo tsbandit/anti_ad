@@ -21,6 +21,7 @@ const create_api_caller = ({url, storage_key}) => {
         break;
 
       if(window.Global.api_keys[storage_key] !== undefined) {
+        window.Global.api_keys[storage_key] = undefined;
         storage_set({api_key: window.api_key}).then(() => {
           console.log('Stored value in storage key ' + JSON.stringify(storage_key));
         });
