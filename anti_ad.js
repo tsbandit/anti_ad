@@ -121,6 +121,11 @@ const undisplay_selector = (selector) => {
   document.head.appendChild(style_tag);
 };
 
+if(site('youtube.com')) {
+  //remove('player-ads');  //Youtube video top-right ads
+  undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
+}
+
 const twitter_helper = function() {
   // Skip Twitter video ads
   if(site('twitter.com')) {
@@ -747,11 +752,6 @@ const f = async function() {
   remove('ad');
   remove('pubmatic_parent');
   remove('at4-share');  // A floating share-button thingie on the side
-
-  if(site('youtube.com')) {
-    //remove('player-ads');  //Youtube video top-right ads
-    undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
-  }
 
   if(site('imgur.com')) {
     remove('div-ad-top_banner');
