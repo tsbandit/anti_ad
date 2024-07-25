@@ -126,6 +126,10 @@ if(site('youtube.com')) {
   undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
 }
 
+if(site('discord.com')) {
+  undisplay_selector('ul[aria-label="Direct Messages"] a[href="/store"] > :nth-child(2)');  // Delete "BUY 1, GET 1"
+}
+
 const twitter_helper = function() {
   // Skip Twitter video ads
   if(site('twitter.com')) {
