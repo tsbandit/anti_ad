@@ -111,14 +111,18 @@ const remove = function(x) {
     e.remove();
 };
 
-const undisplay_selector = (selector) => {
+const insert_css = (css) => {
   const style_tag = document.createElement('style');
-  style_tag.innerText = `\
+  style_tag.innerText = css;
+  document.head.appendChild(style_tag);
+};
+
+const undisplay_selector = (selector) => {
+  insert_css(`\
     ${selector} {
       visibility: hidden;
     }
-  `;
-  document.head.appendChild(style_tag);
+  `);
 };
 
 if(site('youtube.com')) {
@@ -127,7 +131,17 @@ if(site('youtube.com')) {
 }
 
 if(site('discord.com')) {
-  undisplay_selector('ul[aria-label="Direct Messages"] a[href="/store"] > :nth-child(2)');  // Delete "BUY 1, GET 1"
+  // Delete "BUY 1, GET 1"
+  undisplay_selector('ul[aria-label="Direct Messages"] a[href="/store"] > :nth-child(2)');
+
+  // Delete purple junk inside of emoji picker:
+  undisplay_selector('[class^="nitroTopDividerContainer_"]');  // lock icon
+  undisplay_selector('[class^="upsellContainer_"]');  // "Get Nitro" pop-up button
+  insert_css(`
+    [class*="categorySectionNitroLocked_"] {
+      background-color: transparent;
+    }
+  `);
 }
 
 const twitter_helper = function() {
