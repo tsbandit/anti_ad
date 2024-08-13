@@ -130,6 +130,31 @@ if(site('youtube.com')) {
   undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
 }
 
+if(site('nextdoor.com')) {
+  // In-feed ads
+  insert_css(`\
+    .feed-container > * > * > *:has([id^="google_ads_iframe_"]),
+    .feed-container > * > * > *:has(script[src*="moatads.com"]),
+    .feed-container > * > * > *:has(.gam-ad-modernized-option-menu)
+    {
+      visibility: hidden;
+      height: 75px;
+    }
+  `);
+  // Right-hand column ad
+  insert_css(`\
+    [data-testid="rhr-feed-item"] {
+      visibility: hidden;
+    }
+    [data-testid="rhr-feed-item"]::after {
+      content: "Ad hidden",
+      display: inline-block;
+      color: white;
+      background-color: red;
+    }
+  `);
+}
+
 if(site('discord.com')) {
   // Delete "BUY 1, GET 1"
   undisplay_selector('ul[aria-label="Direct Messages"] a[href="/store"] > :nth-child(2)');
@@ -849,7 +874,7 @@ var g = function() {
 };
 
 // Possibly launch the main loop:
-if(!site('imgur.com')) {
+if(!site('imgur.com') && !site('nextdoor.com')) {
   onload_promise.then(g);
 }
 
