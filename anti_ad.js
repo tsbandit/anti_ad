@@ -169,6 +169,38 @@ if(site('discord.com')) {
   `);
 }
 
+if(site('x.com')) {
+  // Eliminate annoying stuff in the sidebar:
+  undisplay_selector('[aria-label="Who to follow"]');
+  undisplay_selector('[aria-label="Timeline: Trending now"]');
+
+  // Eliminate "Who to follow" inside of the timeline:
+  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * [href^="/i/connect_people?user_id="])');
+  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * + * [href^="/i/connect_people?user_id="])');
+  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * + * + * [href^="/i/connect_people?user_id="])');
+
+  // Eliminate the "Discover more" section at the bottom of conversations:
+  const discover_more_attr = 'data-' + 'Wcz9Qkrf6HCIE7ZOgMHy';
+  const constantly_label_discover_more = async() => {
+    while(true) {
+      await sleep(100);
+
+      const selector = `[aria-label="Timeline: Conversation"] > * > :not([${discover_more_attr}])`;
+      const elements = [...document.querySelectorAll(selector)];
+      for(const element of elements) {
+        console.log('processing element');
+        if(element.innerText === 'Discover more\nSourced from across X') {
+          element.setAttribute(discover_more_attr, 'true');
+        } else {
+          element.setAttribute(discover_more_attr, 'false');
+        }
+      }
+    }
+  };
+  constantly_label_discover_more();
+  undisplay_selector(`[${discover_more_attr}="true"] ~ *`);
+}
+
 const twitter_helper = function() {
   // Skip Twitter video ads
   if(site('twitter.com')) {
