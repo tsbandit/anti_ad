@@ -1,0 +1,5 @@
+$ ls -l manifest.json extract_7cups_chats.js temp.patch template.js
+-rw-r--r-- 1 T420 197121  276 Oct 11 21:48 extract_7cups_chats.js
+-rw-r--r-- 1 T420 197121  948 Oct 11 20:48 manifest.json
+-rw-r--r-- 1 T420 197121 3436 Nov 15  2023 temp.patch
+-rw-r--r-- 1 T420 197121  216 Jul  3  2023 template.js
