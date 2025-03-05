@@ -34,7 +34,8 @@
         "anti_addiction.js",
         "anti_ad.js",
         "spy_on_youtube.js",
-        "main_content_script.js"
+        "main_content_script.js",
+        "intercept_requests.js"
       ]
     }
   ],
