@@ -101,7 +101,6 @@ const to_be_injected = () => {
 };
 
 const extract_stuff_to_save = ({url, data}) => {
-  console.log('ymmot5', {url, data});
   const _7cups_regexp = /api.*message/;
   if(_7cups_regexp.test(url)  &&  typeof data === 'object'  &&  data !== null  &&  Array.isArray(data.messages)) {
     return data.messages.map((subdata) => ({type: '7cups message', data: subdata}));
@@ -141,7 +140,6 @@ const do_the_instrumentation = () => {
     const array_of_data_to_save = extract_stuff_to_save({url, data});
 
     for(const data_to_save of array_of_data_to_save) {
-      console.log('ymmot4', data_to_save);
       await call_api_stupidly({
         type: 'save arbitrary data',
         data: data_to_save,
