@@ -121,7 +121,7 @@ const extract_stuff_to_save = ({url, data}) => {
 
     return maybe_array.map((subdata) => {
       // Let's suppress these gigantic parts
-      const {post_ids_results, web_results, cited_web_results, ...subdata_2} = subdata;
+      const {post_ids_results, web_results, cited_web_results, media_post_ids_results, ...subdata_2} = subdata;
       return {type: 'grok message', conversation_id: variables?.restId, data: subdata_2};
     });
   }
