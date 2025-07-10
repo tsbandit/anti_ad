@@ -101,22 +101,22 @@ const to_be_injected = () => {
 };
 
 const extract_stuff_to_save = ({url, data}) => {
+  console.log('extract_stuff_to_save', {url, data});
+
+  const url_obj = URL.parse(url, window.location.href);
+  if(url_obj === null)
+    throw new Error('unexpected condition IruKFT2WNQzMtwUJ5cjT');
+
+  // 7cups:
   const _7cups_regexp = /api.*message/;
   if(_7cups_regexp.test(url)  &&  typeof data === 'object'  &&  data !== null  &&  Array.isArray(data.messages)) {
     return data.messages.map((subdata) => ({type: '7cups message', data: subdata}));
   }
 
+  // Grok:
   const grok_regexp = /\Wx\.com.*api.*GrokConversationItemsByRestId/;
   const maybe_array = data?.data?.grok_conversation_items_by_rest_id?.items;
   if(grok_regexp.test(url)  &&  Array.isArray(maybe_array)) {
-    const url_obj = (() => {
-      try {
-        return new URL(url);
-      } catch(e) {
-        throw new Error('unexpected condition rRin7U3ekXlXd6JWmWkE');
-      }
-    })();
-
     const variables = safe_JSON_parse(url_obj.searchParams.get('variables'));
 
     return maybe_array.map((subdata) => {
@@ -124,6 +124,22 @@ const extract_stuff_to_save = ({url, data}) => {
       const {post_ids_results, web_results, cited_web_results, media_post_ids_results, ...subdata_2} = subdata;
       return {type: 'grok message', conversation_id: variables?.restId, data: subdata_2};
     });
+  }
+
+  // Brave Search LLM:
+  {
+    const regexp = /^https:\/\/search\.brave\.com\/api\/chatllm\/enrichments/;
+    if(regexp.test(url_obj.href)) {
+      return [{
+        type: 'brave search llm message pair',
+        timestamp: new Date().toISOString(),
+        followup: url_obj.searchParams.get('followup'),
+        key: url_obj.searchParams.get('key'),
+        conversation: url_obj.searchParams.get('conversation'),
+        index: url_obj.searchParams.get('index'),
+        data,
+      }];
+    }
   }
 
   return [];
@@ -150,7 +166,7 @@ const do_the_instrumentation = () => {
 
 const site = (s) => (window.location.hostname.endsWith(s));
 
-if(site('x.com')  ||  site('7cups.com')) {
+if(site('x.com')  ||  site('7cups.com')  ||  site('search.brave.com')) {
   do_the_instrumentation();
 }
 
