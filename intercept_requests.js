@@ -75,6 +75,18 @@ const to_be_injected = () => {
       },
     });
 
+    const tommy_eval = (code) => {
+      return new Promise((resolve, reject) => {
+        const event_id = Math.random()+''+Math.random();
+        const listener = async(ev) => {
+          document.removeEventListener(event_id, listener);
+          resolve(ev.detail.result);
+        };
+        document.addEventListener(event_id, listener);
+        document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'tommy_eval', code, event_id}}));
+      });
+    };
+
 //        const [method, url] = args;
 //        this.addEventListener('load', () => {
 //            try {
@@ -88,13 +100,14 @@ const to_be_injected = () => {
 //    };
 
     const processResponse = (url, data) => {
-      document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {url, data}}));
+      document.dispatchEvent(new CustomEvent(unique_event_id, {type: 'intercepted request', detail: {url, data}}));
     };
 
     const replace_the_functions = () => {
         window.fetch = new_fetch;
         //XMLHttpRequest.prototype.open = new_open;
         window.XMLHttpRequest = new_xhr;
+        window.tommy_eval = tommy_eval;
     };
 
     replace_the_functions();
@@ -152,14 +165,29 @@ const do_the_instrumentation = () => {
   document.head.appendChild(script_tag);
 
   document.addEventListener(unique_event_id, async(ev) => {
-    const {url, data} = ev.detail;
-    const array_of_data_to_save = extract_stuff_to_save({url, data});
+    console.log('tommy5', ev.detail);
+    if(ev.detail.type === 'intercepted request') {
+      const {url, data} = ev.detail;
+      const array_of_data_to_save = extract_stuff_to_save({url, data});
 
-    for(const data_to_save of array_of_data_to_save) {
-      await call_api_stupidly({
-        type: 'save arbitrary data',
-        data: data_to_save,
-      });
+      for(const data_to_save of array_of_data_to_save) {
+        await call_api_stupidly({
+          type: 'save arbitrary data',
+          data: data_to_save,
+        });
+      }
+    } else if(ev.detail.type === 'tommy_eval') {
+      const {code, event_id} = ev.detail;
+      (async() => {
+        console.log('tommy7', chrome.runtime.lastError);
+        chrome.runtime.sendMessage(undefined, {type: 'execute_code', code}, undefined, (result) => {
+          console.log('tommy6', chrome.runtime.lastError);
+          console.log('tommy4', result);
+          document.dispatchEvent(new CustomEvent(event_id, {detail: {result}}));
+        });
+      })();
+    } else {
+      // Unrecognized event type. Do nothing.
     }
   });
 };

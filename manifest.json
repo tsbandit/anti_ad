@@ -3,6 +3,7 @@
 
   "name": "Anti Ad",
   "description": "Removes ads",
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "version": "1.0",
 
 //  "browser_action": {
@@ -14,6 +15,7 @@
   "background": {
     "scripts": [
       "util.js",
+      "execute_code.js",
       "call_api.js",
       "listen_for_stupid_api_calls.js",
       "test_notifications.js",
@@ -40,6 +42,13 @@
       ]
     }
   ],
+
+//  "web_accessible_resources": [
+//    {
+//      "resources": ["worker.js"],
+//      "matches": ["<all_urls>"]
+//    }
+//  ],
 
   "permissions": [
 //    "https://ajax.googleapis.com/",
