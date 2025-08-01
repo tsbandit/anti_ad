@@ -6,7 +6,7 @@
 const Global = window.Global = window.Global || {};
 
 const {call_api} = Global.call_api;
-const {execute_code} = Global.execute_code;
+const {ai_coding} = Global.execute_code;
 
 const listen_for_stupid_api_calls = async() => {
   chrome.runtime.onMessage.addListener((request, sender, send_response_) => {
@@ -28,10 +28,9 @@ const listen_for_stupid_api_calls = async() => {
           await call_api(request.request_object);
         } else if(request.type === 'escalate error') {
           escalate(request.error);
-        } else if(request.type === 'execute_code') {
-          const response = await execute_code(request.code);
-          console.log('tommy2', response);
-          send_response({result: response});
+        } else if(request.type === 'ai coding') {
+          const response = await ai_coding(request.operation);
+          send_response(response);
         }
       } finally {
         console.log('tommy9', chrome.runtime.lastError);

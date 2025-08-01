@@ -44,9 +44,13 @@ const to_be_injected = () => {
     const new_fetch = async (resource, options) => {
         const response = await originalFetch(resource, options);
         const clonedResponse = response.clone();
+        const random_id = Math.random();
         clonedResponse.json().then(data => {
+            console.log(random_id, 'about to attempt processing');
             processResponse(get_url(resource), data);
-        }).catch(err => console.error('Error parsing fetch:', err));
+            console.log(random_id, 'done processing');
+        }).catch(err => console.error(random_id, 'Error parsing fetch:', err));
+        console.log(random_id, 'continuing concurrently with parse');
         return response;
     };
     const original_xhr = window.XMLHttpRequest;
@@ -75,7 +79,7 @@ const to_be_injected = () => {
       },
     });
 
-    const tommy_eval = (code) => {
+    const ai_coding = (operation) => {
       return new Promise((resolve, reject) => {
         const event_id = Math.random()+''+Math.random();
         const listener = async(ev) => {
@@ -83,7 +87,7 @@ const to_be_injected = () => {
           resolve(ev.detail.result);
         };
         document.addEventListener(event_id, listener);
-        document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'tommy_eval', code, event_id}}));
+        document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'ai coding', operation, event_id}}));
       });
     };
 
@@ -100,14 +104,14 @@ const to_be_injected = () => {
 //    };
 
     const processResponse = (url, data) => {
-      document.dispatchEvent(new CustomEvent(unique_event_id, {type: 'intercepted request', detail: {url, data}}));
+      document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'intercepted request', url, data}}));
     };
 
     const replace_the_functions = () => {
         window.fetch = new_fetch;
         //XMLHttpRequest.prototype.open = new_open;
         window.XMLHttpRequest = new_xhr;
-        window.tommy_eval = tommy_eval;
+        window.ai_coding = ai_coding;
     };
 
     replace_the_functions();
@@ -176,18 +180,14 @@ const do_the_instrumentation = () => {
           data: data_to_save,
         });
       }
-    } else if(ev.detail.type === 'tommy_eval') {
-      const {code, event_id} = ev.detail;
-      (async() => {
-        console.log('tommy7', chrome.runtime.lastError);
-        chrome.runtime.sendMessage(undefined, {type: 'execute_code', code}, undefined, (result) => {
-          console.log('tommy6', chrome.runtime.lastError);
-          console.log('tommy4', result);
-          document.dispatchEvent(new CustomEvent(event_id, {detail: {result}}));
-        });
-      })();
+    } else if(ev.detail.type === 'ai coding') {
+      const {operation, event_id} = ev.detail;
+      chrome.runtime.sendMessage(undefined, ev.detail, undefined, (result) => {
+        document.dispatchEvent(new CustomEvent(event_id, {detail: {result}}));
+      });
     } else {
-      // Unrecognized event type. Do nothing.
+      console.log('noaimde98v2a3202', ev.detail);
+      throw 'noaimde98v2a3202';
     }
   });
 };

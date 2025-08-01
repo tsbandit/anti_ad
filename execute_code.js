@@ -9,36 +9,60 @@ const Global = window.Global = window.Global || {};
 
 const TIMEOUT = 5000;
 
-const execute_code = (code) => {
+const execute_code = ({modules, name}) => {
   return new Promise((resolve, reject) => {
     const worker = new Worker(chrome.extension.getURL('worker.js'));
 
     const timer = setTimeout(() => {
       worker.terminate();
-      reject(new Error('Code execution timed out'));
+      resolve({error: 'Code execution timed out (TIMEOUT = ' + TIMEOUT + ' ms)'});
     }, TIMEOUT);
 
     worker.onmessage = function (e) {
       clearTimeout(timer);
       worker.terminate();
-      if (e.data.error) {
-        reject(e.data.error);
+      if(e.data.error) {
+        resolve(e.data);
       } else {
-        resolve(e.data.result);
+        resolve(e.data);
       }
     };
 
     worker.onerror = function (err) {
       clearTimeout(timer);
       worker.terminate();
-      reject(err.message || 'Worker error');
+      resolve({error: err.message || 'Worker error'});
     };
 
-    worker.postMessage(code);
+    worker.postMessage({modules, name});
   });
 };
 
-Global.execute_code = {execute_code};
+const call_ai_coding_api = async(req_obj) => {
+  return await (await fetch('http://localhost:3011/api', {
+    method: 'post',
+    body: JSON.stringify(req_obj),
+    headers: {'Content-Type': 'application/json'},
+  })).json();
+};
+
+const ai_coding = async(operation) => {
+  console.log('ymmot1', operation);
+  if(operation.type === 'ai coding execute code') {
+    const {modules} = await call_ai_coding_api({type: 'get modules'});
+    return await execute_code({...operation, modules});
+  } else if(operation.type === 'ai coding get module') {
+    return await call_ai_coding_api({...operation, type: 'get module'});
+  } else if(operation.type === 'ai coding get modules') {
+    return Object.keys((await call_ai_coding_api({...operation, type: 'get modules'})).modules);
+  } else if(operation.type === 'ai coding put module') {
+    return await call_ai_coding_api({...operation, type: 'put module'});
+  } else {
+    throw 'amk09ew23093v';
+  }
+};
+
+Global.execute_code = {ai_coding};
 
 
 })();
