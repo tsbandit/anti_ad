@@ -31,8 +31,6 @@ const spy_on_youtube = async() => {
   if(parsed_url === 'not youtube') {
     // Do nothing
   } else {
-    const {video_id} = parsed_url;
-
     await onload_promise;
 
     let videos;
@@ -58,6 +56,26 @@ const spy_on_youtube = async() => {
       const now = Date.now();
       if(now > get_last_call_time() + 5000) {
         set_last_call_time(now);  // Setting this first prevents undesired reentry.
+
+        const parsed_url_2 = parse_url();
+
+        if(parsed_url_2 === 'not youtube')
+          return;
+
+        const {video_id} = parsed_url_2;
+
+        console.log('Using video_id', video_id);
+
+        // TODO: Detect video_id using something like this instead:
+        //
+        //window.addEventListener('message', (event) => {
+        //  try{
+        //    const video_id = JSON.parse(event.data).info.videoData.video_id;
+        //    if(video_id !== undefined)
+        //      console.log('found video id:', video_id);
+        //  } catch(e) {}
+        //});
+
         const req = {
           type: 'youtube',
           video_timestamp: video_tag.currentTime,
