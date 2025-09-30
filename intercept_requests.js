@@ -164,11 +164,18 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
     const regexp_2 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/stream/;
     if(regexp_2.test(url_obj.href)) {
       const data_lines = data_string.split('\n');
-      if(data_lines.length < 2)
-        return [];
-      const data_2 = safe_JSON_parse(data_lines.slice(-2)[0]);
-      if(data_2.type !== 'text_stop')
-        return [];
+      let raw_response = '';
+      const data_2 = [];
+      for(const line of data_lines) {
+        const item = safe_JSON_parse(line);
+        if(item?.type === 'text_delta')
+          continue;
+        if(item?.type === 'text_start')
+          continue;
+        if(item?.type === 'text_stop')
+          raw_response += item.text;
+        data_2.push(item);
+      }
       return [{
         type: 'brave search llm message pair',
         timestamp: new Date().toISOString(),
@@ -176,7 +183,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
 //        key: url_obj.searchParams.get('key'),
         conversation: url_obj.searchParams.get('symmetric_key'),
 //        index: url_obj.searchParams.get('index'),
-        data: {raw_response: data_2.text},
+        data: {raw_response, more_data: data_2},
         format: 'v2',
       }];
     }
@@ -230,6 +237,7 @@ const do_the_instrumentation = () => {
       const array_of_data_to_save = extract_stuff_to_save({url, data});
 
       for(const data_to_save of array_of_data_to_save) {
+        console.log('data_to_save', data_to_save);
         await call_api_stupidly({
           type: 'save arbitrary data',
           data: data_to_save,
