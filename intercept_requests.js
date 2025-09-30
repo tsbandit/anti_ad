@@ -45,7 +45,7 @@ const to_be_injected = () => {
         const response = await originalFetch(resource, options);
         const clonedResponse = response.clone();
         const random_id = Math.random();
-        clonedResponse.json().then(data => {
+        clonedResponse.text().then(data => {
             console.log(random_id, 'about to attempt processing');
             processResponse(get_url(resource), data);
             console.log(random_id, 'done processing');
@@ -65,9 +65,9 @@ const to_be_injected = () => {
             xhr.addEventListener('load', () => {
               const data = (() => {
                 if(xhr.responseType === 'json') {
-                  return xhr.response;
+                  return JSON.stringify(xhr.response);
                 } else if(xhr.responseType === ''  ||  xhr.responseType === 'text') {
-                  return safe_JSON_parse(xhr.responseText);
+                  return xhr.responseText;
                 }
               })();
               processResponse(typeof url === 'string' ? url : url.href, data);
@@ -117,8 +117,10 @@ const to_be_injected = () => {
     replace_the_functions();
 };
 
-const extract_stuff_to_save = ({url, data}) => {
-  console.log('extract_stuff_to_save', {url, data});
+const extract_stuff_to_save = ({url, data: data_string}) => {
+  console.log('extract_stuff_to_save', {url, data_string});
+
+  const data = safe_JSON_parse(data_string);
 
   const url_obj = URL.parse(url, window.location.href);
   if(url_obj === null)
@@ -155,6 +157,59 @@ const extract_stuff_to_save = ({url, data}) => {
         conversation: url_obj.searchParams.get('conversation'),
         index: url_obj.searchParams.get('index'),
         data,
+        format: 'v1',
+      }];
+    }
+
+    const regexp_2 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/stream/;
+    if(regexp_2.test(url_obj.href)) {
+      const data_lines = data_string.split('\n');
+      if(data_lines.length < 2)
+        return [];
+      const data_2 = safe_JSON_parse(data_lines.slice(-2)[0]);
+      if(data_2.type !== 'text_stop')
+        return [];
+      return [{
+        type: 'brave search llm message pair',
+        timestamp: new Date().toISOString(),
+        followup: url_obj.searchParams.get('query'),
+//        key: url_obj.searchParams.get('key'),
+        conversation: url_obj.searchParams.get('symmetric_key'),
+//        index: url_obj.searchParams.get('index'),
+        data: {raw_response: data_2.text},
+        format: 'v2',
+      }];
+    }
+
+    const regexp_3 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/get_current_state/;
+    if(regexp_3.test(url_obj.href)) {
+      let followup = undefined;
+      let raw_response = undefined;
+      for(const item of data.flat()) {
+        if(item.type === 'user') {
+          if(followup !== undefined)
+            throw new Error('unexpected condition Ws8XDmxE74FFwBZS5l23');
+          followup = item.query;
+        }
+        if(item.type === 'quick_answer') {
+          if(raw_response !== undefined)
+            throw new Error('unexpected condition vCiwWLGANB8blQbAyh5H');
+          raw_response = item.message;
+        }
+      }
+
+      if(followup === undefined  ||  raw_response === undefined)
+        throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
+
+      return [{
+        type: 'brave search llm message pair',
+        timestamp: new Date().toISOString(),
+        followup,
+//        key: url_obj.searchParams.get('key'),
+        conversation: url_obj.searchParams.get('symmetric_key'),
+//        index: url_obj.searchParams.get('index'),
+        data: {raw_response},
+        format: 'v2 2',
       }];
     }
   }
