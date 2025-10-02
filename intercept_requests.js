@@ -181,7 +181,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
         timestamp: new Date().toISOString(),
         followup: url_obj.searchParams.get('query'),
 //        key: url_obj.searchParams.get('key'),
-        conversation: url_obj.searchParams.get('symmetric_key'),
+        conversation: url_obj.searchParams.get('symmetric_key')+','+url_obj.searchParams.get('id'),
 //        index: url_obj.searchParams.get('index'),
         data: {raw_response, more_data: data_2},
         format: 'v2',
