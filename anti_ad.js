@@ -128,6 +128,7 @@ const undisplay_selector = (selector) => {
 if(site('youtube.com')) {
   //remove('player-ads');  //Youtube video top-right ads
   undisplay_selector('ytd-watch-next-secondary-results-renderer');  // related videos in right-hand column
+  undisplay_selector('.ytp-fullscreen-grid-stills-container');  // youtube related videos (as of 2025-10-24 ish)
 }
 
 if(site('nextdoor.com')) {
