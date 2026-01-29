@@ -75,15 +75,26 @@ const showToast = (() => {
   };
 })();
 
-const possibly_render_acknowledgment = ({request_object: req, response_object: resp, errored}) => {
-  console.log('possibly_render_acknowledgment() ymmot2');
+const possibly_render_acknowledgment = ({request_object: req, response_object: resp, errored, error}) => {
   if(req.type === 'save arbitrary data' && req.data?.type === 'brave search llm message pair') {
-    if(errored)
+    if(errored) {
       showToast({red: true, message: 'Failed to save something'});
-    const json_string = JSON.stringify(resp);
-    const size = 50;
-    const r = Math.floor(Math.random() * Math.max(0, json_string.length - size));
-    showToast({message: `Saved ${json_string.length} bytes. Excerpt: ${JSON.stringify(resp).slice(r, r + size)}`});
+      console.log(error);
+      return 'suppress error';
+    } else {
+      const json_string = JSON.stringify(resp);
+      const size = 50;
+      const r = Math.floor(Math.random() * Math.max(0, json_string.length - size));
+      showToast({message: `Saved ${json_string.length} bytes. Excerpt: ${JSON.stringify(resp).slice(r, r + size)}`});
+    }
+  } else if(req.type === 'youtube') {
+    if(errored) {
+      showToast({red: true, message: 'Failed to save something'});
+      console.log(error);
+      return 'suppress error';
+    } else {
+      // Do nothing
+    }
   }
 };
 
@@ -105,9 +116,9 @@ const call_api_stupidly = async(request_object) => {
     }
   })();
 
-  possibly_render_acknowledgment({request_object, response_object: result, errored});
+  const ret = possibly_render_acknowledgment({request_object, response_object: result, errored, error});
 
-  if(errored)
+  if(errored && ret !== 'suppress error')
     throw error;
 
   return result;
