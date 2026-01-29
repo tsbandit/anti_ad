@@ -7,41 +7,73 @@ const Global = window.Global = window.Global || {};
 
 const {storage_set} = Global.util;
 
-function showToast({message, duration = 3000, red = false}) {
-  // Create toast element
-  const toast = document.createElement('div');
-  toast.style.cssText = `
+const showToast = (() => {
+  const container = document.createElement('div');
+  container.style.cssText = `
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background-color: #333;
-    color: white;
-    padding: 12px 20px;
-    border-radius: 4px;
-    font-size: 14px;
     z-index: 9999;
-    opacity: 0;
-    transition: opacity 0.3s ease;
+    width: 300px;
   `;
-  if(red)
-    toast.style.backgroundColor = '#a00';
-  toast.textContent = message;
+  document.body.appendChild(container);
 
-  // Add to DOM
-  document.body.appendChild(toast);
+  const toasts = [];
 
-  // Trigger reflow to enable transition
-  void toast.offsetWidth;
+  const updatePositions = () => {
+    let offset = 0;
+    toasts.forEach(toastObj => {
+      const offset_2 = offset;
+      requestAnimationFrame(() => {
+        toastObj.element.style.transform = `translateY(-${offset_2}px)`;
+      });
+      offset += toastObj.height + 10; // 10px gap
+    });
+  };
 
-  // Fade in
-  toast.style.opacity = '1';
+  return ({ message, duration = 5000, red = false }) => {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      background-color: ${red ? '#a00' : '#333'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    `;
+    toast.textContent = message;
 
-  // Fade out and remove after duration
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.addEventListener('transitionend', () => toast.remove());
-  }, duration);
-}
+    container.appendChild(toast);
+
+    // Measure height after append
+    const height = toast.offsetHeight;
+    const toastObj = { element: toast, height };
+
+    // Insert at start of array (top of stack)
+    toasts.unshift(toastObj);
+
+    // Trigger reflow and animate in
+    void toast.offsetWidth;
+    toast.style.opacity = '1';
+
+    updatePositions(); // Animate all into correct positions
+
+    // Auto-remove
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => {
+        toast.remove();
+        toasts.splice(toasts.indexOf(toastObj), 1);
+        updatePositions(); // Re-animate stack
+      });
+    }, duration);
+  };
+})();
 
 const possibly_render_acknowledgment = ({request_object: req, response_object: resp, errored}) => {
   console.log('possibly_render_acknowledgment() ymmot2');
