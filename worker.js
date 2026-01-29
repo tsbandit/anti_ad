@@ -1,7 +1,6 @@
 // worker.js
 self.onmessage = (e) => {
   try {
-    console.log('ymmot10');
     const {modules, name} = e.data;
     const keys = Object.keys(modules).sort();
     let assembled_code = '';
@@ -9,7 +8,6 @@ self.onmessage = (e) => {
       assembled_code += `const ${subname} = (${modules[subname]});`;
     }
     assembled_code += `return ${name}();`
-    console.log('ymmot11', {assembled_code});
     const fn = new Function(assembled_code);
     const result = fn();
     const result_string = JSON.stringify(result);

@@ -64,7 +64,7 @@ const spy_on_youtube = async() => {
 
         const {video_id} = parsed_url_2;
 
-        console.log('Using video_id', video_id);
+        //console.log('Using video_id', video_id);
 
         // TODO: Detect video_id using something like this instead:
         //

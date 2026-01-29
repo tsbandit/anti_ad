@@ -46,11 +46,11 @@ const to_be_injected = () => {
         const clonedResponse = response.clone();
         const random_id = Math.random();
         clonedResponse.text().then(data => {
-            console.log(random_id, 'about to attempt processing');
+            //console.log(random_id, 'about to attempt processing');
             processResponse(get_url(resource), data);
-            console.log(random_id, 'done processing');
+            //console.log(random_id, 'done processing');
         }).catch(err => console.error(random_id, 'Error parsing fetch:', err));
-        console.log(random_id, 'continuing concurrently with parse');
+        //console.log(random_id, 'continuing concurrently with parse');
         return response;
     };
     const original_xhr = window.XMLHttpRequest;
@@ -118,7 +118,7 @@ const to_be_injected = () => {
 };
 
 const extract_stuff_to_save = ({url, data: data_string}) => {
-  console.log('extract_stuff_to_save', {url, data_string});
+  //console.log('extract_stuff_to_save', {url, data_string});
 
   const data = safe_JSON_parse(data_string);
 
@@ -194,8 +194,10 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
       let raw_response = undefined;
       for(const item of data.flat()) {
         if(item.type === 'user') {
-          if(followup !== undefined)
-            throw new Error('unexpected condition Ws8XDmxE74FFwBZS5l23');
+          if(followup !== undefined) {
+            console.log('Considering saving chat data; but reconsidering because multiple user queries are present in the API response.');
+            return [];
+          }
           followup = item.query;
         }
         if(item.type === 'quick_answer') {
@@ -238,13 +240,13 @@ const do_the_instrumentation = () => {
   document.head.appendChild(script_tag);
 
   document.addEventListener(unique_event_id, async(ev) => {
-    console.log('tommy5', ev.detail);
+    //console.log('tommy5', ev.detail);
     if(ev.detail.type === 'intercepted request') {
       const {url, data} = ev.detail;
       const array_of_data_to_save = extract_stuff_to_save({url, data});
 
       for(const data_to_save of array_of_data_to_save) {
-        console.log('data_to_save', data_to_save);
+        //console.log('data_to_save', data_to_save);
         await call_api_stupidly({
           type: 'save arbitrary data',
           data: data_to_save,

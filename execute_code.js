@@ -47,7 +47,6 @@ const call_ai_coding_api = async(req_obj) => {
 };
 
 const ai_coding = async(operation) => {
-  console.log('ymmot1', operation);
   if(operation.type === 'ai coding execute code') {
     const {modules} = await call_ai_coding_api({type: 'get modules'});
     return await execute_code({...operation, modules});
