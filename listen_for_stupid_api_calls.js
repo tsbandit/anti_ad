@@ -32,7 +32,7 @@ const listen_for_stupid_api_calls = async() => {
           send_response(response);
         }
       } finally {
-        console.log('tommy9', chrome.runtime.lastError);
+        //console.log('tommy9', chrome.runtime.lastError);
         send_response();
       }
     })();
