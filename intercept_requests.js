@@ -206,8 +206,10 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
           raw_response = item.message;
         }
         if(item.type === 'text_stop') {
-          if(raw_response !== undefined)
+          if(raw_response !== undefined) {
+            console.log({error_code: 'PVGrsetEqxmScuH1FzsP', diagnostics: {item, data}});
             throw new Error('unexpected condition PVGrsetEqxmScuH1FzsP');
+          }
           raw_response = item.text;
         }
       }
