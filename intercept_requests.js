@@ -203,10 +203,17 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
             throw new Error('unexpected condition vCiwWLGANB8blQbAyh5H');
           raw_response = item.message;
         }
+        if(item.type === 'text_stop') {
+          if(raw_response !== undefined)
+            throw new Error('unexpected condition PVGrsetEqxmScuH1FzsP');
+          raw_response = item.text;
+        }
       }
 
-      if(followup === undefined  ||  raw_response === undefined)
+      if(followup === undefined  ||  raw_response === undefined) {
+        console.log({diagnostic: {url, data_string}});
         throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
+      }
 
       return [{
         type: 'brave search llm message pair',
