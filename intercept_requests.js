@@ -191,7 +191,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
     const regexp_3 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/get_current_state/;
     if(regexp_3.test(url_obj.href)) {
       let followup = undefined;
-      let raw_response = undefined;
+      let raw_response = '';
       for(const item of data.flat()) {
         if(item.type === 'user') {
           if(followup !== undefined) {
@@ -200,21 +200,13 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
           }
           followup = item.query;
         }
-        if(item.type === 'quick_answer') {
-          if(raw_response !== undefined)
-            throw new Error('unexpected condition vCiwWLGANB8blQbAyh5H');
-          raw_response = item.message;
-        }
-        if(item.type === 'text_stop') {
-          if(raw_response !== undefined) {
-            console.log({error_code: 'PVGrsetEqxmScuH1FzsP', diagnostics: {item, data}});
-            throw new Error('unexpected condition PVGrsetEqxmScuH1FzsP');
-          }
-          raw_response = item.text;
-        }
+        if(item.type === 'quick_answer')
+          raw_response += item.message;
+        if(item.type === 'text_stop')
+          raw_response += item.text;
       }
 
-      if(followup === undefined  ||  raw_response === undefined) {
+      if(followup === undefined  ||  raw_response === '') {
         console.log({diagnostic: {url, data_string}});
         throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
       }
