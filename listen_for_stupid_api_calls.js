@@ -8,7 +8,7 @@ const Global = window.Global = window.Global || {};
 const {escalate} = Global.util;
 const {call_api} = Global.call_api;
 const {ai_coding} = Global.execute_code;
-const {looking_at_anti_addiction_2_page} = Global.anti_addiction_2;
+const {get_anti_addiction_2_state, looking_at_anti_addiction_2_page} = Global.anti_addiction_2;
 
 const listen_for_stupid_api_calls = async() => {
   chrome.runtime.onMessage.addListener((request, sender, send_response_) => {
@@ -31,6 +31,8 @@ const listen_for_stupid_api_calls = async() => {
         } else if(request.type === 'ai coding') {
           const response = await ai_coding(request.operation);
           send_response(response);
+        } else if(request.type === 'get_anti_addiction_2_state') {
+          send_response(get_anti_addiction_2_state());
         } else if(request.type === 'looking_at_anti_addiction_2_page') {
           looking_at_anti_addiction_2_page();
         }

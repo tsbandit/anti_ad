@@ -74,8 +74,10 @@ const update_state = (new_state) => {
   storage_set({anti_addiction_2_state: JSON.stringify(new_state)});
   state = new_state;
 };
-let state = safe_JSON_parse(storage_get('anti_addiction_2_state'))  ||  {type: 'v1', base_time: Date.now()};
+let state = undefined;
 const anti_addiction_2 = async() => {
+  state = safe_JSON_parse(await storage_get('anti_addiction_2_state'))  ||  {type: 'v1', base_time: Date.now()};
+  update_state(state);
   while(true) {
     const time = Date.now() - state.base_time;
     if(time < 0) {
@@ -91,7 +93,9 @@ const anti_addiction_2 = async() => {
   }
 };
 
-Global.anti_addiction_2 = {anti_addiction_2, looking_at_anti_addiction_2_page};
+const get_anti_addiction_2_state = () => (state);
+
+Global.anti_addiction_2 = {anti_addiction_2, looking_at_anti_addiction_2_page, get_anti_addiction_2_state};
 
 
 })();
