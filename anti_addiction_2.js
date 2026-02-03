@@ -76,6 +76,22 @@ const enforce_break = async({break_finishes_at}) => {
   }
 };
 
+const isSleepTime = (time) => {
+  const date = new Date(time);
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const totalMinutes = hours * 60 + minutes;
+  const startSleep = 21 * 60 + 45; // 9:45 PM
+  const endSleep = 5 * 60;         // 5:00 AM
+  return totalMinutes >= startSleep || totalMinutes < endSleep;
+};
+const nextMorningTime = (now) => {
+  const tomorrow = new Date(now);
+  tomorrow.setHours(tomorrow.getHours() + 7);
+  tomorrow.setHours(5, 0, 0, 0); // 5:00 AM
+  return tomorrow.getTime();
+};
+
 const update_state = (new_state) => {
   storage_set({anti_addiction_2_state: JSON.stringify(new_state)});
   state = new_state;
@@ -86,13 +102,20 @@ const anti_addiction_2 = async() => {
   state = {type: 'v1', base_time: Date.now() - 2*ONE_HOUR_IN_MILLIS + 30*1000};  // Just for testing
   update_state(state);
   while(true) {
-    const time = Date.now() - state.base_time;
+    const now = Date.now();
+
+    if(isSleepTime(now)) {
+      await enforce_break({break_finishes_at: nextMorningTime(now)});
+      continue;
+    }
+
+    const time = now - state.base_time;
     if(time < 0) {
       throw new Error('ma923rp23ivoanbfef');
     } else if(time <= ONE_HOUR_IN_MILLIS) {
       await sleep(ONE_HOUR_IN_MILLIS - time);
     } else if(time <= 2*ONE_HOUR_IN_MILLIS) {
-      const break_finishes_at = Date.now() + 2 * ONE_HOUR_IN_MILLIS - time;
+      const break_finishes_at = now + 2 * ONE_HOUR_IN_MILLIS - time;
       await enforce_break({break_finishes_at});
     } else {
       update_state({...state, base_time: state.base_time + 2*ONE_HOUR_IN_MILLIS});
