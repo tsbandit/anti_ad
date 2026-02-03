@@ -39,17 +39,15 @@
         "spy_on_youtube.js",
         "main_content_script.js",
         "intercept_requests.js",
-        "rip_bestplaces.js"
+        "rip_bestplaces.js",
+        "anti_addiction_3.js"
       ]
     }
   ],
 
-//  "web_accessible_resources": [
-//    {
-//      "resources": ["worker.js"],
-//      "matches": ["<all_urls>"]
-//    }
-//  ],
+  "web_accessible_resources": [
+    "anti_addiction_2.html"
+  ],
 
   "permissions": [
 //    "https://ajax.googleapis.com/",

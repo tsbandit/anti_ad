@@ -5,7 +5,17 @@
 
 const Global = window.Global = window.Global || {};
 
-const {sleep, make_state} = Global.util;
+const {sleep, make_state, storage_get, storage_set} = Global.util;
+
+const ONE_HOUR_IN_MILLIS = 60 * 60 * 1000;
+
+const safe_JSON_parse = (arg) => {
+  try {
+    return JSON.parse(arg);
+  } catch(e) {
+    return undefined;
+  }
+};
 
 const audioContext = new AudioContext();
 function playTone({frequency = 440, duration = 1000, gain: gain_value = 0.5, delay = 0}) {
@@ -25,17 +35,63 @@ function playTone({frequency = 440, duration = 1000, gain: gain_value = 0.5, del
   oscillator.stop(audioContext.currentTime + delay/1000 + duration/1000);
 }
 
-const anti_addiction_2 = async() => {
-  playTone({delay:    0, duration: 425, gain: 0.178});
-  playTone({delay:  500, duration: 258, gain: 0.237});
-  playTone({delay:  833, duration:  92, gain: 0.316});
-  playTone({delay: 1000, duration:  92, gain: 0.422});
-  playTone({delay: 1167, duration: 425, gain: 0.563});
-  playTone({delay: 1667, duration: 258, gain: 0.750});
-  playTone({delay: 2000, duration: 425, gain: 1.000});
+let last_look_time = 0;
+
+const looking_at_anti_addiction_2_page = () => {
+  last_look_time = Date.now();
 };
 
-Global.anti_addiction_2 = {anti_addiction_2};
+async function create_or_focus_window() {
+  const url = chrome.runtime.getURL("anti_addiction_2.html");
+
+  // Find existing window
+  const existing = await chrome.windows.getAll({populate: true});
+  const target = existing.find((win) => (win.tabs?.some((tab) => (tab.url === url))));
+
+  if(target) {
+    chrome.windows.update(target.id, {focused: true});
+  } else {
+    chrome.windows.create({url});
+  }
+}
+
+const enforce_break = async({break_finishes_at}) => {
+  let gain = 0.178;
+  while(Date.now() < break_finishes_at) {
+    await sleep(500);
+
+    if(Date.now() < last_look_time + 2500) {
+      gain = 0.178;
+    } else {
+      playTone({delay: 0, duration: 250, gain});
+      gain = Math.min(1, gain * 4/3);
+      create_or_focus_window();
+    }
+  }
+};
+
+const update_state = (new_state) => {
+  storage_set({anti_addiction_2_state: JSON.stringify(new_state)});
+  state = new_state;
+};
+let state = safe_JSON_parse(storage_get('anti_addiction_2_state'))  ||  {type: 'v1', base_time: Date.now()};
+const anti_addiction_2 = async() => {
+  while(true) {
+    const time = Date.now() - state.base_time;
+    if(time < 0) {
+      throw new Error('ma923rp23ivoanbfef');
+    } else if(time <= ONE_HOUR_IN_MILLIS) {
+      await sleep(ONE_HOUR_IN_MILLIS - time);
+    } else if(time <= 2*ONE_HOUR_IN_MILLIS) {
+      const break_finishes_at = Date.now() + 2 * ONE_HOUR_IN_MILLIS - time;
+      await enforce_break({break_finishes_at});
+    } else {
+      update_state({...state, base_time: state.base_time + 2*ONE_HOUR_IN_MILLIS});
+    }
+  }
+};
+
+Global.anti_addiction_2 = {anti_addiction_2, looking_at_anti_addiction_2_page};
 
 
 })();
