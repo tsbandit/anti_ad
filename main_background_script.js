@@ -7,6 +7,7 @@ const Global = window.Global = window.Global || {};
 
 const {escalate, register_unhandled_rejection_handler_background} = Global.util;
 const {listen_for_stupid_api_calls} = Global.listen_for_stupid_api_calls;
+const {anti_addiction_2} = Global.anti_addiction_2;
 const {spy_on_my_tabs} = Global.spy_on_my_tabs;
 
 const main = async() => {
@@ -14,6 +15,7 @@ const main = async() => {
 
   try {
     listen_for_stupid_api_calls();  // Launches an asynchronous thread.
+    anti_addiction_2();             // Launches an asynchronous thread.
     await spy_on_my_tabs();
   } catch(e) {
     escalate(e);
