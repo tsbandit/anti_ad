@@ -1,5 +1,18 @@
 const ONE_HOUR_IN_MILLIS = 60 * 60 * 1000;
 
+let div;
+let window_has_focus = () => (false);
+window.addEventListener('load', () => {
+  div = document.querySelector('div');
+
+  const textarea = document.querySelector('textarea');
+  let textarea_has_focus = false;
+  window.addEventListener('blur', () => {textarea.focus();});
+  textarea.addEventListener('focus', () => {textarea_has_focus = true;});
+  textarea.addEventListener('blur', () => {textarea_has_focus = false;});
+  window_has_focus = () => (document.hasFocus() && !textarea_has_focus);
+});
+
 const chrome_runtime_sendMessage = (request_object) => {
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage(request_object, (response) => {resolve(response);});
@@ -13,8 +26,8 @@ const calculate_minutes_seconds = (time_til) => {
 
 let base_time = 0;
 
-setInterval(() => {
-  if(!document.hidden)
+setInterval(async() => {
+  if(window_has_focus())
     chrome.runtime.sendMessage({type: 'looking_at_anti_addiction_2_page'});
 
   const now = Date.now();
@@ -24,13 +37,13 @@ setInterval(() => {
     const break_start = now - my_time + ONE_HOUR_IN_MILLIS;
     const time_til = break_start - now;
     const {minutes, seconds} = calculate_minutes_seconds(time_til);
-    document.body.innerText = `Break STARTS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_start)}`;
+    div.innerText = `Break STARTS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_start)}`;
   } else {
     const now = Date.now();
     const break_end = now - my_time + 2*ONE_HOUR_IN_MILLIS;
     const time_til = break_end - now;
     const {minutes, seconds} = calculate_minutes_seconds(time_til);
-    document.body.innerText = `Break ENDS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_end)}`;
+    div.innerText = `Break ENDS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_end)}`;
   }
 }, 1000);
 

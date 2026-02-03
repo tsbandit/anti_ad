@@ -41,27 +41,33 @@ const looking_at_anti_addiction_2_page = () => {
   last_look_time = Date.now();
 };
 
-async function create_or_focus_window() {
-  const url = chrome.runtime.getURL("anti_addiction_2.html");
+const create_or_focus_window = (() => {
+  let most_recent_window_opening = 0;
+  return async() => {
+    const url = chrome.runtime.getURL("anti_addiction_2.html");
 
-  // Find existing window
-  const existing = await chrome.windows.getAll({populate: true});
-  const target = existing.find((win) => (win.tabs?.some((tab) => (tab.url === url))));
+    // Find existing window
+    const existing = await new Promise((resolve) => (chrome.windows.getAll({populate: true}, resolve)));
+    const target = existing.find((win) => (win.tabs?.some((tab) => (tab.url === url))));
 
-  if(target) {
-    chrome.windows.update(target.id, {focused: true});
-  } else {
-    chrome.windows.create({url});
-  }
-}
+    if(target) {
+      chrome.windows.update(target.id, {focused: true});
+    } else if(Date.now() - most_recent_window_opening >= 10000) {
+      console.log({existing});
+      most_recent_window_opening = Date.now();
+      chrome.windows.create({url});
+    }
+  };
+})();
 
 const enforce_break = async({break_finishes_at}) => {
-  let gain = 0.178;
+  const INITIAL_GAIN = 0.05;
+  let gain = INITIAL_GAIN;
   while(Date.now() < break_finishes_at) {
     await sleep(500);
 
     if(Date.now() < last_look_time + 2500) {
-      gain = 0.178;
+      gain = INITIAL_GAIN;
     } else {
       playTone({delay: 0, duration: 250, gain});
       gain = Math.min(1, gain * 4/3);
@@ -76,7 +82,8 @@ const update_state = (new_state) => {
 };
 let state = undefined;
 const anti_addiction_2 = async() => {
-  state = safe_JSON_parse(await storage_get('anti_addiction_2_state'))  ||  {type: 'v1', base_time: Date.now()};
+  //state = safe_JSON_parse(await storage_get('anti_addiction_2_state'))  ||  {type: 'v1', base_time: Date.now()};
+  state = {type: 'v1', base_time: Date.now() - 2*ONE_HOUR_IN_MILLIS + 30*1000};  // Just for testing
   update_state(state);
   while(true) {
     const time = Date.now() - state.base_time;
