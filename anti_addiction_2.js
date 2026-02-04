@@ -36,11 +36,11 @@ function playTone({frequency = 440, duration = 1000, gain: gain_value = 0.5, del
   oscillator.stop(audioContext.currentTime + delay/1000 + duration/1000);
 }
 
-const my_state_machine = (() => {
+const make_state_machine = async() => {
   const INITIAL_STATE = {version: 2, type: 'blocked', budget: 3*ONE_HOUR_IN_MILLIS, last_update: Date.now(), counter: 0, deadline: Date.now() + 30*1000};  // Just for testing
 
-  //let state = safe_JSON_parse(await storage_get('anti_addiction_2_state'))  ||  INITIAL_STATE;
-  let state = INITIAL_STATE;  // Just for testing
+  let state = safe_JSON_parse(await storage_get('anti_addiction_2_state'))  ||  INITIAL_STATE;
+  //let state = INITIAL_STATE;  // Just for testing
 
   const update_state = (new_state) => {
     storage_set({anti_addiction_2_state: JSON.stringify(new_state)});
@@ -126,7 +126,10 @@ const my_state_machine = (() => {
   function get_state() {return state;}
 
   return {start_timer, override, elective_break, get_status, get_state};
-})();
+};
+
+let my_state_machine;
+make_state_machine().then((x) => {my_state_machine = x;});
 
 let last_look_time = 0;
 
@@ -256,6 +259,9 @@ const anti_addiction_2 = async() => {
     const now = Date.now();
 
     const the_status = my_state_machine.get_status();
+
+    if(the_status !== 'blocked')
+      gain = INITIAL_GAIN;
 
     if(the_status === 'blocked') {
       if(Date.now() < last_look_time + 2500) {

@@ -11,6 +11,7 @@ window.addEventListener('load', () => {
   textarea.addEventListener('focus', () => {textarea_has_focus = true;});
   textarea.addEventListener('blur', () => {textarea_has_focus = false;});
   window_has_focus = () => (document.hasFocus() && !textarea_has_focus);
+  textarea.focus();
 });
 
 const chrome_runtime_sendMessage = (request_object) => {
