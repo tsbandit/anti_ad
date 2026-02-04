@@ -74,6 +74,8 @@ const my_state_machine = (() => {
         new_state.deadline = now + 110 * ONE_MINUTE_IN_MILLIS;
       }
     }
+
+    return new_state;
   }
 
   function is_within_special_window(now = Date.now()) {
@@ -116,7 +118,7 @@ const my_state_machine = (() => {
   }
 
   function get_status() {
-    if(is_in_special_window())
+    if(is_within_special_window())
       return 'blocked';
     return state.type;
   }
@@ -244,6 +246,7 @@ const anti_addiction_2 = async() => {
   //throw new Error('not implemented right now');
 
   const INITIAL_GAIN = 0.02;
+  let gain = INITIAL_GAIN;
 
   my_state_machine.start_timer();
 

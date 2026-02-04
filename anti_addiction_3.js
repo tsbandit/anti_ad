@@ -40,7 +40,7 @@ setInterval(async() => {
     div.innerText = `Break STARTS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_start)}`;
   } else if(the_status === 'blocked') {
     const now = Date.now();
-    const break_end = now - my_time + 2*ONE_HOUR_IN_MILLIS;
+    const break_end = deadline;
     const time_til = break_end - now;
     const {minutes, seconds} = calculate_minutes_seconds(time_til);
     div.innerText = `Break ENDS in ${minutes}m and ${seconds}s\n\nat ${new Date(break_end)}`;
