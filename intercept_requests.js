@@ -190,6 +190,9 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
 
     const regexp_3 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/get_current_state/;
     if(regexp_3.test(url_obj.href)) {
+      if(!Array.isArray(data))
+        return (console.log('unexpected data format; refusing to attempt to save.', data), []);
+
       let followup = undefined;
       let raw_response = '';
       for(const item of data.flat()) {
