@@ -131,6 +131,16 @@ if(site('youtube.com')) {
   undisplay_selector('.ytp-fullscreen-grid-stills-container');  // youtube related videos (as of 2025-10-24 ish)
 }
 
+if(site('search.brave.com')) {
+  // Sponsored search result
+  undisplay_selector('#search-ad *');
+  insert_css(`\
+    #search-ad {
+      background-color: black;
+    }
+  `);
+}
+
 if(site('nextdoor.com')) {
   // In-feed ads
   insert_css(`\
