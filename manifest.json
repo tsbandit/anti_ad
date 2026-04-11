@@ -38,7 +38,8 @@
         "spy_on_youtube.js",
         "main_content_script.js",
         "intercept_requests.js",
-        "rip_bestplaces.js"
+        "rip_bestplaces.js",
+        "booking.js"
       ]
     }
   ],
