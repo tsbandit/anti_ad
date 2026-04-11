@@ -120,7 +120,7 @@ const insert_css = (css) => {
 const undisplay_selector = (selector) => {
   insert_css(`\
     ${selector} {
-      visibility: hidden;
+      visibility: hidden !important;
     }
   `);
 };
@@ -139,6 +139,19 @@ if(site('search.brave.com')) {
       background-color: black;
     }
   `);
+
+  // Sponsored stuff during AI chat
+  undisplay_selector('.enrichment-carousel-item:has(.enrichment-card-item[data-advertiser-id]) *');
+  insert_css('.enrichment-carousel-item:has(.enrichment-card-item[data-advertiser-id]) {background-color: black;}');
+}
+
+if(site('rumble.com')) {
+  // Related videos in sidebar
+  undisplay_selector('.media-page-related-media-desktop-sidebar');
+
+  // Related videos after video ends
+  undisplay_selector('#videoPlayer > .videoPlayer-Rumble-cls > div:has(video) > div > ul li:has(a div span)');
+  undisplay_selector('#videoPlayer > .videoPlayer-Rumble-cls > div:has(video) > div > ul li:has(a div span) *');
 }
 
 if(site('nextdoor.com')) {

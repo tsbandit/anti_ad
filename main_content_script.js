@@ -19,6 +19,7 @@ const site_on_anti_ad_site_list = () => {
         ||  window.location.hostname.endsWith('youtube.com')
         ||  window.location.hostname.endsWith('x.com')
         ||  window.location.hostname.endsWith('search.brave.com')
+        ||  window.location.hostname.endsWith('rumble.com')
         ) {
     return true;
   } else {
