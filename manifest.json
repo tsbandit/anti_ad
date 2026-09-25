@@ -44,12 +44,15 @@
     }
   ],
 
-//  "web_accessible_resources": [
+  "web_accessible_resources": [
+    "compressed_bible.json",
+    "storage-test.html",
+    "storage-test.js"
 //    {
 //      "resources": ["worker.js"],
 //      "matches": ["<all_urls>"]
 //    }
-//  ],
+  ],
 
   "permissions": [
 //    "https://ajax.googleapis.com/",
