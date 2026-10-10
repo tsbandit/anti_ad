@@ -15,7 +15,7 @@ const main = async() => {
 
   try {
     listen_for_stupid_api_calls();  // Launches an asynchronous thread.
-    anti_addiction_2();             // Launches an asynchronous thread.
+//    anti_addiction_2();             // Launches an asynchronous thread.
     await spy_on_my_tabs();
   } catch(e) {
     escalate(e);
