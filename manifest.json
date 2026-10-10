@@ -6,11 +6,11 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "version": "1.0",
 
-//  "browser_action": {
+  "browser_action": {
 //    "default_icon": "icon.png",
-//    "default_title": "tommy wrote this",
-//    "default_popup": "popup.html"
-//  },
+    "default_title": "anti_ad popup",
+    "default_popup": "popup.html"
+  },
 
   "background": {
     "scripts": [
@@ -47,7 +47,11 @@
   "web_accessible_resources": [
     "compressed_bible.json",
     "storage-test.html",
-    "storage-test.js"
+    "util.js",
+    "call_api.js",
+    "storage-test.js",
+    "popup.js",
+    "popup.html"
 //    {
 //      "resources": ["worker.js"],
 //      "matches": ["<all_urls>"]

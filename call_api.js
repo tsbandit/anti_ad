@@ -59,7 +59,7 @@ const call_api = create_api_caller({
   storage_key: 'api_key',
 });
 
-Global.call_api = {call_api};
+Global.call_api = {call_api, create_api_caller};
 
 
 })();

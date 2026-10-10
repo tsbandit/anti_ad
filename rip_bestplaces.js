@@ -124,13 +124,44 @@ const maybe_process_people = async(candidate) => {
   });
 };
 
+const maybe_process_time_zone = async() => {
+  const time_zone = ([...document.querySelectorAll('[style="border-radius: 7px 7px 7px 7px;"]:has(h3.card-title) > div > div')]
+        .flatMap((x) => {
+    const match = x.innerHTML.match(/<b>Time zone:<\/b>([^<]*)<br/);
+    if(!match) {
+      return [];
+    } else if(match[1] === ' Central Standard Time (CST) ') {
+      return ['central'];
+    } else if(match[1] === ' Eastern Standard Time (EST) ') {
+      return ['eastern'];
+    } else {
+      return 'unknown: ' + match[1];
+    }
+  })[0] ?? 'unknown');
+
+  if(time_zone === 'unknown')
+    return;
+
+  await call_api_stupidly({
+    type: 'save arbitrary data',
+    data: {
+      type: 'bestplaces',
+      subtype: 'time zone',
+      pathname: window.location.pathname,
+      time_zone,
+    },
+  });
+};
+
 const rip_data = () => {
   // Only rip data when looking at certain URLs:
   const path_parts = window.location.pathname.split('/');
-  if(path_parts.length < 3  ||  path_parts[2] !== 'city')
+  if(path_parts[1] !== 'city'  &&  path_parts[2] !== 'city'  &&  path_parts[1] !== 'zip-code'  &&  path_parts[2] !== 'zip-code')
     return;
 
   window.addEventListener('load', async(ev) => {
+    await maybe_process_time_zone();
+
     const candidates_h5 = document.querySelectorAll('h5');
     for(const candidate of candidates_h5) {
       await maybe_process_violent_crime(candidate);
@@ -150,10 +181,49 @@ const rip_data = () => {
   });
 };
 
+const rip_zipinfo_data = () => {
+  window.addEventListener('load', async(ev) => {
+    //https://www.zipinfo.com/cgi-local/zipsrch.exe?tz=tz&ll=ll&zip=40906
+
+    const tbody = [...document.querySelectorAll('tbody')].find((x) => (x.children[0].children[0].innerText === 'Mailing\nName'));
+
+    const rearranged_data = [];
+
+    for(const cell of tbody?.children[0]?.children ?? [])
+      rearranged_data.push([cell.innerText]);
+    for(let i=0; i<rearranged_data.length; ++i)
+      rearranged_data[i].push(tbody.children[1].children[i].innerText);
+
+    const rearranged_2 = Object.fromEntries(rearranged_data);
+
+    const time_zone = ((rearranged_2['Time\nZone'] === 'EST') ? 'eastern' : rearranged_2['Time\nZone']);
+
+    const payload = {
+      type: 'save arbitrary data',
+      data: {
+        type: 'bestplaces',
+        subtype: 'zipinfo',
+        zip_code: rearranged_2['ZIP\nCode'],
+        time_zone,
+        latitude: -parseFloat(rearranged_2['Latitude\n(North)']),
+        longitude: -parseFloat(rearranged_2['Longitude\n(West)']),
+        longitude: -parseFloat(rearranged_2['Longitude\n(West)']),
+        population: rearranged_2['Census\nPopulation'],
+      },
+    };
+
+    await call_api_stupidly(payload);
+  });
+};
+
 const site = (s) => (window.location.hostname.endsWith(s));
 
 if(site('bestplaces.net')) {
   rip_data();
+} else if(site('zipinfo.com')) {
+  rip_zipinfo_data();
+} else {
+  // Do nothing
 }
 
 
