@@ -6,11 +6,11 @@
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
   "version": "1.0",
 
-//  "browser_action": {
+  "browser_action": {
 //    "default_icon": "icon.png",
-//    "default_title": "tommy wrote this",
-//    "default_popup": "popup.html"
-//  },
+    "default_title": "anti_ad popup",
+    "default_popup": "popup.html"
+  },
 
   "background": {
     "scripts": [
@@ -39,14 +39,27 @@
         "spy_on_youtube.js",
         "main_content_script.js",
         "intercept_requests.js",
-        "rip_bestplaces.js"
+        "rip_bestplaces.js",
+        "booking.js"
       ]
     }
   ],
 
   "web_accessible_resources": [
     "anti_addiction_2.html",
-    "anti_addiction_3.js"
+    "anti_addiction_3.js",
+
+    "compressed_bible.json",
+    "storage-test.html",
+    "util.js",
+    "call_api.js",
+    "storage-test.js",
+    "popup.js",
+    "popup.html"
+//    {
+//      "resources": ["worker.js"],
+//      "matches": ["<all_urls>"]
+//    }
   ],
 
   "permissions": [
