@@ -81,7 +81,7 @@ const make_state_machine = async() => {
   function is_within_special_window(now = Date.now()) {
     const h = new Date(now).getHours();
     const m = new Date(now).getMinutes();
-    return (h > 21 && m >= 45) || h < 5;
+    return (h >= 21 && m >= 45) || h < 5;
   }
 
   function start_timer() {
@@ -246,7 +246,7 @@ const create_or_focus_window = (() => {
 //const get_anti_addiction_2_state = () => (state);
 
 const anti_addiction_2 = async() => {
-  //throw new Error('not implemented right now');
+  throw new Error('not implemented right now');
 
   const INITIAL_GAIN = 0.02;
   let gain = INITIAL_GAIN;
