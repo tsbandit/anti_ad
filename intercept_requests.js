@@ -8,6 +8,8 @@ const Global = window.Global = window.Global || {};
 //const {storage_get, storage_set, sleep, escalate, make_state} = Global.util;
 const {call_api_stupidly} = Global.call_api_stupidly;
 
+let tab_id;
+
 const safe_JSON_parse = (arg) => {
   try {
     return JSON.parse(arg);
@@ -45,9 +47,10 @@ const to_be_injected = () => {
         const response = await originalFetch(resource, options);
         const clonedResponse = response.clone();
         const random_id = Math.random();
+        const req_body = options?.body;
         clonedResponse.text().then(data => {
             //console.log(random_id, 'about to attempt processing');
-            processResponse(get_url(resource), data);
+            processResponse(get_url(resource), data, req_body);
             //console.log(random_id, 'done processing');
         }).catch(err => console.error(random_id, 'Error parsing fetch:', err));
         //console.log(random_id, 'continuing concurrently with parse');
@@ -58,10 +61,17 @@ const to_be_injected = () => {
       construct(Target, args_1) {
 //        console.log('construct called');
         const xhr = new Target(...args_1);
+        let method, url;
         xhr.open = new Proxy(xhr.open, {
           apply(target, self, args_2) {
-            const [method, url] = args_2;
+            [method, url] = args_2;
 //            console.log('apply called', {url});
+            return Reflect.apply(target, self, args_2);
+          },
+        });
+        xhr.send = new Proxy(xhr.send, {
+          apply(target, self, args_2) {
+            const [req_body] = args_2;
             xhr.addEventListener('load', () => {
               const data = (() => {
                 if(xhr.responseType === 'json') {
@@ -70,7 +80,7 @@ const to_be_injected = () => {
                   return xhr.responseText;
                 }
               })();
-              processResponse(typeof url === 'string' ? url : url.href, data);
+              processResponse(typeof url === 'string' ? url : url.href, data, req_body);
             });
             return Reflect.apply(target, self, args_2);
           },
@@ -103,8 +113,8 @@ const to_be_injected = () => {
 //        originalXhrOpen.apply(this, args);
 //    };
 
-    const processResponse = (url, data) => {
-      document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'intercepted request', url, data}}));
+    const processResponse = (url, data, req_body) => {
+      document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'intercepted request', url, data, req_body}}));
     };
 
     const replace_the_functions = () => {
@@ -117,14 +127,18 @@ const to_be_injected = () => {
     replace_the_functions();
 };
 
-const extract_stuff_to_save = ({url, data: data_string}) => {
-  //console.log('extract_stuff_to_save', {url, data_string});
+const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_body}) => {
+  console.log('extract_stuff_to_save', {page_url, req_url: url, data_string, req_body});
 
   const data = safe_JSON_parse(data_string);
 
   const url_obj = URL.parse(url, window.location.href);
   if(url_obj === null)
     throw new Error('unexpected condition IruKFT2WNQzMtwUJ5cjT');
+
+  const page_url_obj = URL.parse(page_url, window.location.href);
+  if(page_url_obj === null)
+    throw new Error('unexpected condition bsM1aIDgxWk9NcWuiFIU');
 
   // 7cups:
   const _7cups_regexp = /api.*message/;
@@ -141,7 +155,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
     return maybe_array.map((subdata) => {
       // Let's suppress these gigantic parts
       const {post_ids_results, web_results, cited_web_results, media_post_ids_results, ...subdata_2} = subdata;
-      return {type: 'grok message', conversation_id: variables?.restId, data: subdata_2};
+      return {type: 'grok message', conversation_id: variables?.restId, data: subdata_2, tab_id};
     });
   }
 
@@ -155,6 +169,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
         followup: url_obj.searchParams.get('followup'),
         key: url_obj.searchParams.get('key'),
         conversation: url_obj.searchParams.get('conversation'),
+        tab_id,
         index: url_obj.searchParams.get('index'),
         data,
         format: 'v1',
@@ -163,6 +178,7 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
 
     const regexp_2 = /^https:\/\/search\.brave\.com\/api\/tap\/v1\/stream/;
     if(regexp_2.test(url_obj.href)) {
+      const parsed_body = safe_JSON_parse(req_body);
       const data_lines = data_string.split('\n');
       let raw_response = '';
       const data_2 = [];
@@ -176,12 +192,35 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
           raw_response += item.text;
         data_2.push(item);
       }
+      const followup = (() => {
+        const possibility_1 = url_obj.searchParams.get('query');
+        const possibility_2 = parsed_body?.query;
+        if(!possibility_1)
+          return possibility_2;
+        if(!possibility_2)
+          return possibility_1;
+        console.log({diagnostic: {possibility_1, possibility_2, url, data_string, page_url, req_body}});
+        throw new Error('unexpected condition ');
+      })();
+      const conversation = (() => {
+        const possibility_1 = page_url_obj.searchParams.get('conversation');
+//        const possibility_2 = parsed_body?.symmetric_key;
+//        const possibility_3 = url_obj.searchParams.get('symmetric_key')+','+url_obj.searchParams.get('id');
+        return possibility_1;
+      })();
+      const symmetric_key = parsed_body?.symmetric_key;
+      if(!followup  ||  !raw_response  ||  !conversation) {
+        console.log({diagnostic: {followup, raw_response, conversation, url, data_string, page_url, req_body}});
+        throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
+      }
       return [{
         type: 'brave search llm message pair',
         timestamp: new Date().toISOString(),
-        followup: url_obj.searchParams.get('query'),
+        followup,
 //        key: url_obj.searchParams.get('key'),
-        conversation: url_obj.searchParams.get('symmetric_key')+','+url_obj.searchParams.get('id'),
+        conversation,
+        symmetric_key,
+        tab_id,
 //        index: url_obj.searchParams.get('index'),
         data: {raw_response, more_data: data_2},
         format: 'v2',
@@ -209,8 +248,12 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
           raw_response += item.text;
       }
 
-      if(followup === undefined  ||  raw_response === '') {
-        console.log({diagnostic: {url, data_string}});
+      const symmetric_key = (() => {
+        return url_obj.searchParams.get('symmetric_key');
+      })();
+
+      if(!followup  ||  !raw_response  ||  !symmetric_key) {
+        console.log({diagnostic: {followup, raw_response, symmetric_key, url, data_string, page_url, req_body}});
         throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
       }
 
@@ -219,7 +262,8 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
         timestamp: new Date().toISOString(),
         followup,
 //        key: url_obj.searchParams.get('key'),
-        conversation: url_obj.searchParams.get('symmetric_key'),
+        symmetric_key,
+        tab_id,
 //        index: url_obj.searchParams.get('index'),
         data: {raw_response},
         format: 'v2 2',
@@ -231,6 +275,8 @@ const extract_stuff_to_save = ({url, data: data_string}) => {
 };
 
 const do_the_instrumentation = () => {
+  tab_id = JSON.stringify([Math.random(), Math.random(), Math.random()]);
+
   const script_tag = document.createElement('script');
   script_tag.textContent = '(' + to_be_injected + ')();';
   script_tag.onload = function() {this.remove();};
@@ -239,11 +285,11 @@ const do_the_instrumentation = () => {
   document.addEventListener(unique_event_id, async(ev) => {
     //console.log('tommy5', ev.detail);
     if(ev.detail.type === 'intercepted request') {
-      const {url, data} = ev.detail;
-      const array_of_data_to_save = extract_stuff_to_save({url, data});
+      const {url, data, req_body} = ev.detail;
+      const array_of_data_to_save = extract_stuff_to_save({page_url: window.location.href, req_url: url, data, req_body});
 
       for(const data_to_save of array_of_data_to_save) {
-        //console.log('data_to_save', data_to_save);
+        console.log('data_to_save', data_to_save);
         await call_api_stupidly({
           type: 'save arbitrary data',
           data: data_to_save,
