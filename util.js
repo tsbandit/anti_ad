@@ -110,6 +110,12 @@ const register_unhandled_rejection_handler_content = () => {
   window.addEventListener("unhandledrejection", handle_unhandled_rejection);
 };
 
+const chrome_runtime_sendMessage = (request_object) => {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(request_object, (response) => {resolve(response);});
+  });
+};
+
 const showToast = (() => {
   const container = document.createElement('div');
   container.style.cssText = `
@@ -178,7 +184,7 @@ const showToast = (() => {
   };
 })();
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler_background, register_unhandled_rejection_handler_content, showToast};
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler_background, register_unhandled_rejection_handler_content, showToast, chrome_runtime_sendMessage};
 
 
 })();

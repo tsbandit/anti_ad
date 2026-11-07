@@ -40,7 +40,8 @@
         "main_content_script.js",
         "intercept_requests.js",
         "rip_bestplaces.js",
-        "booking.js"
+        "booking.js",
+        "xfer_xten_file.js"
       ]
     }
   ],

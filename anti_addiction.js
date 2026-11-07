@@ -117,7 +117,7 @@ const anti_addiction = async() => {
     }
   };
 
-  await main();
+//  await main();  // anti_addiction is currently disabled
 };
 
 Global.anti_addiction = {anti_addiction};

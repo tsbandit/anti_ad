@@ -5,7 +5,7 @@
 
 const Global = window.Global = window.Global || {};
 
-const {sleep, storage_get, onload_promise, make_state} = Global.util;
+const {sleep, onload_promise, make_state, chrome_runtime_sendMessage} = Global.util;
 const {call_api_stupidly} = Global.call_api_stupidly;
 
 const parse_url = () => {
@@ -33,6 +33,9 @@ const spy_on_youtube = async() => {
   } else {
     await onload_promise;
 
+    const recent_videos_data = await chrome_runtime_sendMessage({type: 'youtube page startup', video_id: parsed_url.video_id});
+    console.log('ymmot1', recent_videos_data);
+
     let videos;
 
     while(true) {
@@ -52,6 +55,14 @@ const spy_on_youtube = async() => {
 
     const video_tag = videos[0];
 
+    if(recent_videos_data) {
+      for(let i=0; i<10; ++i) {
+        if(Math.abs(video_tag.currentTime - recent_videos_data.video_timestamp) > 22)
+          video_tag.currentTime = recent_videos_data.video_timestamp;
+        await sleep(1000);
+      }
+    }
+
     video_tag.addEventListener('timeupdate', async() => {
       const now = Date.now();
       if(now > get_last_call_time() + 5000) {
@@ -61,6 +72,9 @@ const spy_on_youtube = async() => {
 
         if(parsed_url_2 === 'not youtube')
           return;
+
+        const title = document.querySelector('#title h1')?.innerText;
+        const channel_name = document.querySelector('ytd-watch-metadata #container.ytd-channel-name')?.innerText;
 
         const {video_id} = parsed_url_2;
 
@@ -80,6 +94,8 @@ const spy_on_youtube = async() => {
           type: 'youtube',
           video_timestamp: video_tag.currentTime,
           video_id,
+          title,
+          channel_name,
         };
         await call_api_stupidly(req);
       }
