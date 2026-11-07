@@ -6,6 +6,7 @@
 const Global = window.Global = window.Global || {};
 
 //const {storage_get, storage_set, sleep, escalate, make_state} = Global.util;
+const {showToast} = Global.util;
 const {call_api_stupidly} = Global.call_api_stupidly;
 
 let tab_id;
@@ -200,7 +201,8 @@ const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_b
         if(!possibility_2)
           return possibility_1;
         console.log({diagnostic: {possibility_1, possibility_2, url, data_string, page_url, req_body}});
-        throw new Error('unexpected condition ');
+        showToast({red: true, message: "Didn't save; ambiguous value of `followup`"});
+        throw new Error('unexpected condition ma023vioanfiwe903ow');
       })();
       const conversation = (() => {
         const possibility_1 = page_url_obj.searchParams.get('conversation');
@@ -211,7 +213,8 @@ const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_b
       const symmetric_key = parsed_body?.symmetric_key;
       if(!followup  ||  !raw_response  ||  !conversation) {
         console.log({diagnostic: {followup, raw_response, conversation, url, data_string, page_url, req_body}});
-        throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
+        showToast({red: true, message: 'Something is missing though'});
+        console.error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
       }
       return [{
         type: 'brave search llm message pair',
@@ -254,7 +257,8 @@ const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_b
 
       if(!followup  ||  !raw_response  ||  !symmetric_key) {
         console.log({diagnostic: {followup, raw_response, symmetric_key, url, data_string, page_url, req_body}});
-        throw new Error('unexpected condition INnbkAmnd4NhZxyGkDyZ');
+        showToast({red: true, message: 'Something is missing though'});
+        console.error('unexpected condition amvd0923ej9230vqokn');
       }
 
       return [{
@@ -307,11 +311,15 @@ const do_the_instrumentation = () => {
   });
 };
 
-const site = (s) => (window.location.hostname.endsWith(s));
+const main = () => {
+  const site = (s) => (window.location.hostname.endsWith(s));
+  
+  if(site('x.com')  ||  site('7cups.com')  ||  site('search.brave.com')) {
+    do_the_instrumentation();
+  }
+};
 
-if(site('x.com')  ||  site('7cups.com')  ||  site('search.brave.com')) {
-  do_the_instrumentation();
-}
+main();
 
 
 })();

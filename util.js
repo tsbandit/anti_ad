@@ -110,7 +110,75 @@ const register_unhandled_rejection_handler_content = () => {
   window.addEventListener("unhandledrejection", handle_unhandled_rejection);
 };
 
-Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler_background, register_unhandled_rejection_handler_content};
+const showToast = (() => {
+  const container = document.createElement('div');
+  container.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 300px;
+  `;
+  document.body.appendChild(container);
+
+  const toasts = [];
+
+  const updatePositions = () => {
+    let offset = 0;
+    toasts.forEach(toastObj => {
+      const offset_2 = offset;
+      requestAnimationFrame(() => {
+        toastObj.element.style.transform = `translateY(-${offset_2}px)`;
+      });
+      offset += toastObj.height + 10; // 10px gap
+    });
+  };
+
+  return ({ message, duration = 5000, red = false }) => {
+    const toast = document.createElement('div');
+    toast.style.cssText = `
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 100%;
+      background-color: ${red ? '#a00' : '#333'};
+      color: white;
+      padding: 12px 20px;
+      border-radius: 4px;
+      font-size: 14px;
+      opacity: 0;
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    `;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    // Measure height after append
+    const height = toast.offsetHeight;
+    const toastObj = { element: toast, height };
+
+    // Insert at start of array (top of stack)
+    toasts.unshift(toastObj);
+
+    // Trigger reflow and animate in
+    void toast.offsetWidth;
+    toast.style.opacity = '1';
+
+    updatePositions(); // Animate all into correct positions
+
+    // Auto-remove
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.addEventListener('transitionend', () => {
+        toast.remove();
+        toasts.splice(toasts.indexOf(toastObj), 1);
+        updatePositions(); // Re-animate stack
+      });
+    }, duration);
+  };
+})();
+
+Global.util = {sleep, make_state, possibly_send_notification, storage_get, storage_set, escalate, onload_promise, register_unhandled_rejection_handler_background, register_unhandled_rejection_handler_content, showToast};
 
 
 })();
