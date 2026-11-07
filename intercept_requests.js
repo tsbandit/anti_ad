@@ -313,7 +313,7 @@ const do_the_instrumentation = () => {
 
 const main = () => {
   const site = (s) => (window.location.hostname.endsWith(s));
-  
+
   if(site('x.com')  ||  site('7cups.com')  ||  site('search.brave.com')) {
     do_the_instrumentation();
   }
