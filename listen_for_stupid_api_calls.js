@@ -7,6 +7,7 @@ const Global = window.Global = window.Global || {};
 
 const {escalate, storage_set, storage_get} = Global.util;
 const {call_api} = Global.call_api;
+const {get_recent_tabs_data} = Global.recent_tabs_data_state;
 const {ai_coding} = Global.execute_code;
 const {get_anti_addiction_2_state, looking_at_anti_addiction_2_page} = Global.anti_addiction_2;
 
@@ -50,6 +51,8 @@ const listen_for_stupid_api_calls = async() => {
         } else if(request.type === 'ai coding') {
           const response = await ai_coding(request.operation);
           send_response(response);
+        } else if(request.type === 'get recent tabs data') {
+          send_response(get_recent_tabs_data());
         } else if(request.type === 'get_anti_addiction_2_state') {
           send_response(get_anti_addiction_2_state());
         } else if(request.type === 'looking_at_anti_addiction_2_page') {

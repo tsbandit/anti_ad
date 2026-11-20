@@ -15,6 +15,7 @@
   "background": {
     "scripts": [
       "util.js",
+      "recent_tabs_data_state.js",
       "execute_code.js",
       "call_api.js",
       "anti_addiction_2.js",

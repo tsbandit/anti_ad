@@ -93,6 +93,7 @@ const spy_on_youtube = async() => {
         const req = {
           type: 'youtube',
           video_timestamp: video_tag.currentTime,
+          video_length: video_tag.duration,
           video_id,
           title,
           channel_name,

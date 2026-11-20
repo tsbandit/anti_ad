@@ -3,7 +3,9 @@
 
 'use strict';
 
-const {storage_get} = Global.util;
+const Global = window.Global = window.Global || {};
+
+const {storage_get, chrome_runtime_sendMessage} = Global.util;
 
 const unique_event_id = 'intercepted_data_BJxCzQv6Rn0wW5PwstYO';    // Keep this in sync with the line below ...
 
@@ -32,10 +34,25 @@ const to_be_injected = () => {
           document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'get recent videos data', event_id}}));
         });
       },
+      get_recent_tabs_data: () => {
+        return new Promise((resolve, reject) => {
+          const event_id = Math.random()+''+Math.random();
+          const listener = async(ev) => {
+            document.removeEventListener(event_id, listener);
+            resolve(ev.detail.result);
+          };
+          document.addEventListener(event_id, listener);
+          document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'get recent tabs data', event_id}}));
+        });
+      },
     };
   };
 
   replace_the_functions();
+};
+
+const get_recent_tabs_data = async() => {
+  return await chrome_runtime_sendMessage({type: 'get recent tabs data'});
 };
 
 const get_recent_videos_data = async() => {
@@ -54,6 +71,10 @@ const do_the_instrumentation = () => {
       const {event_id} = ev.detail;
       const videos_data = await get_recent_videos_data();
       document.dispatchEvent(new CustomEvent(event_id, {detail: {result: videos_data}}));
+    } else if(ev.detail.type === 'get recent tabs data') {
+      const {event_id} = ev.detail;
+      const tabs_data = await get_recent_tabs_data();
+      document.dispatchEvent(new CustomEvent(event_id, {detail: {result: tabs_data}}));
     } else {
       throw new Error('unrecognized type');
     }

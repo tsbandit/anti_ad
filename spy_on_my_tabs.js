@@ -6,6 +6,7 @@
 const Global = window.Global = window.Global || {};
 
 const {storage_get, storage_set, sleep, escalate, make_state} = Global.util;
+const {set_recent_tabs_data} = Global.recent_tabs_data_state;
 const {call_api} = Global.call_api;
 
 const get_tabs = () => (new Promise((resolve) => {chrome.tabs.query({}, resolve);}));
@@ -42,9 +43,11 @@ const spy_on_my_tabs = async() => {
   while(true) {
     try {
       if(get_dirty()) {
+        const reformatted_tabs = reformat_tabs(await get_tabs());
+        set_recent_tabs_data(reformatted_tabs);
         const response = await call_api({
           type: 'save browser tabs',
-          browser_tabs: reformat_tabs(await get_tabs()),
+          browser_tabs: reformatted_tabs,
         });
         set_dirty(false);
       } else {
