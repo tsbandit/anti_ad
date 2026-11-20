@@ -8,7 +8,10 @@ const Global = window.Global = window.Global || {};
 const {showToast} = Global.util;
 
 const possibly_render_acknowledgment = ({request_object: req, response_object: resp, errored, error}) => {
-  if(req.type === 'save arbitrary data' && req.data?.type === 'brave search llm message pair') {
+  if(req.type === 'save arbitrary data' && (
+            req.data?.type === 'brave search llm message pair'
+        ||  req.data?.type === 'grok message'
+        )) {
     if(errored) {
       showToast({red: true, message: 'Failed to save something'});
       console.log(error);
