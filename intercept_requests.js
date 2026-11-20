@@ -258,7 +258,7 @@ const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_b
       if(!followup  ||  !raw_response  ||  !symmetric_key) {
         console.log({diagnostic: {followup, raw_response, symmetric_key, url, data_string, page_url, req_body}});
         showToast({red: true, message: 'Something is missing though'});
-        console.error('unexpected condition amvd0923ej9230vqokn');
+        //console.error('unexpected condition amvd0923ej9230vqokn');
       }
 
       return [{
