@@ -195,8 +195,10 @@ if(site('discord.com')) {
 
 if(site('x.com')) {
   // Eliminate annoying stuff in the sidebar:
-  undisplay_selector('[aria-label="Who to follow"]');
-  undisplay_selector('[aria-label="Timeline: Trending now"]');
+  undisplay_selector('aside :not(:has([aria-label="Search"])):not([aria-label="Search"]):not([aria-label="Search"] *)');
+  undisplay_selector('[data-who-to-follow]');  // Redundant, but sure
+  //undisplay_selector('[aria-label="Who to follow"]');           // superseded 2026-11-25
+  //undisplay_selector('[aria-label="Timeline: Trending now"]');  // superseded 2026-11-25
 
   // Eliminate "Who to follow" inside of the timeline:
   undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * [href^="/i/connect_people?user_id="])');
