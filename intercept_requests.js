@@ -115,6 +115,10 @@ const to_be_injected = () => {
 //    };
 
     const processResponse = (url, data, req_body) => {
+      if(req_body instanceof URLSearchParams) {
+        req_body = req_body + '';
+      }
+
       document.dispatchEvent(new CustomEvent(unique_event_id, {detail: {type: 'intercepted request', url, data, req_body}}));
     };
 

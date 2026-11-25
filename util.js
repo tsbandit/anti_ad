@@ -90,6 +90,7 @@ const register_unhandled_rejection_handler_background = () => {
         await escalate(promise_rejection_event.reason);
       } catch(e) {
         console.error('tommy already handling; ' + e.message);
+        console.log('errors were', promise_rejection_event, e);
       }
     }
   );
@@ -104,6 +105,7 @@ const register_unhandled_rejection_handler_content = () => {
         await chrome.runtime.sendMessage({type: 'escalate error', error: promise_rejection_event.reason});
       } catch(e) {
         console.error('tommy already handling; ' + e.message);
+        console.log('errors were', promise_rejection_event, e);
       }
     }
   );
