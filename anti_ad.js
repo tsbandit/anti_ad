@@ -201,9 +201,26 @@ if(site('x.com')) {
   //undisplay_selector('[aria-label="Timeline: Trending now"]');  // superseded 2026-11-25
 
   // Eliminate "Who to follow" inside of the timeline:
-  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * [href^="/i/connect_people?user_id="])');
-  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * + * [href^="/i/connect_people?user_id="])');
-  undisplay_selector('[aria-label^="Timeline: "] > * > :has([data-testid="UserCell"]):has(+ * + * + * [href^="/i/connect_people?user_id="])');
+  const hiding_attr = 'data-' + 'Y2TsRimBTGTWHUdjyQGs';
+  undisplay_selector(`[${hiding_attr}="true"] [data-href]`);
+  (async() => {
+    while(true) {
+      await sleep(100);
+
+      const candidates = document.querySelectorAll(`main section ul > li:has(h2):not([${hiding_attr}])`);
+      for(const candidate of candidates) {
+        console.log('processing element', candidate);
+        let decision = 'false';
+        try {
+          const h2 = candidate.querySelector('h2');
+          if(h2.innerText === 'Who to follow')
+            decision = 'true';
+        } finally {
+          candidate.setAttribute(hiding_attr, decision);
+        }
+      }
+    }
+  })();
 
   // Eliminate the "Discover more" section at the bottom of conversations:
   const discover_more_attr = 'data-' + 'Wcz9Qkrf6HCIE7ZOgMHy';
