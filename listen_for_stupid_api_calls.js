@@ -57,6 +57,10 @@ const listen_for_stupid_api_calls = async() => {
           send_response(get_anti_addiction_2_state());
         } else if(request.type === 'looking_at_anti_addiction_2_page') {
           looking_at_anti_addiction_2_page();
+        } else if(request.type === 'heartbeat') {
+          // Do nothing
+        } else {
+          throw new Error('unrecognized extension message type: ' + request.type);
         }
       } finally {
         //console.log('tommy9', chrome.runtime.lastError);

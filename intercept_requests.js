@@ -6,7 +6,7 @@
 const Global = window.Global = window.Global || {};
 
 //const {storage_get, storage_set, sleep, escalate, make_state} = Global.util;
-const {showToast} = Global.util;
+const {sleep, showToast, chrome_runtime_sendMessage} = Global.util;
 const {call_api_stupidly} = Global.call_api_stupidly;
 
 let tab_id;
@@ -282,7 +282,20 @@ const extract_stuff_to_save = ({page_url, req_url: url, data: data_string, req_b
   return [];
 };
 
+const spawn_heartbeat_thread = async() => {
+  while(true) {
+    await sleep(5000);
+    try {
+      await chrome_runtime_sendMessage({type: 'heartbeat'});
+    } catch(e) {
+      showToast({red: true, message: 'Heartbeat failure: ' + e.message});
+    }
+  }
+};
+
 const do_the_instrumentation = () => {
+  spawn_heartbeat_thread();
+
   tab_id = JSON.stringify([Math.random(), Math.random(), Math.random()]);
 
   const script_tag = document.createElement('script');
